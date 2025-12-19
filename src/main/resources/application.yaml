@@ -1,0 +1,28 @@
+#App info
+app:
+  name: @project.name@
+  version: @project.version@
+
+server:
+  port: ${PORT:3000}
+
+logging:
+  level:
+    org:
+      atmosphere:
+        warn
+
+#Upload File Size
+spring:
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+# To improve the performance during development.
+# For more information https://vaadin.com/docs/latest/flow/integrations/spring/configuration#special-configuration-parameters
+vaadin:
+  launch-browser:
+    true # Launch the default browser when starting the application in development mode
+  allowed-packages:
+    [com.vaadin,org.vaadin,com.flowingcode,com.myorg]

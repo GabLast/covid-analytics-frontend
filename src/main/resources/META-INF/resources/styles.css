@@ -1,1 +1,11 @@
 /* Add your styles here */
+@import url('./main-layout.css');
+html {
+    --lumo-border-radius-s: calc(var(--lumo-size-m) / 4);
+    --lumo-border-radius-m: calc(var(--lumo-size-m) / 1.5);
+    --lumo-border-radius-l: var(--lumo-size-m);
+}
+
+.my-layout-with-border {
+    border: 1px solid black; /* Shorthand for border-width, style, and color */
+}

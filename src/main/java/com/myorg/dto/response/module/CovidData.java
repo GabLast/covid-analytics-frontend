@@ -1,0 +1,81 @@
+package com.myorg.dto.response.module;
+
+import java.math.BigDecimal;
+
+public record CovidData(
+        String countryCode
+        , String countryName
+        , String placeId
+        , String date
+        , BigDecimal newConfirmed
+        , BigDecimal newDeceased
+        , BigDecimal newTested
+        , BigDecimal newPartialVaccinated
+        , BigDecimal newFullyVaccinated
+        , BigDecimal newVaccineDosesAdministrated
+        , BigDecimal populationTotal
+        , BigDecimal populationMale
+        , BigDecimal populationFemale
+        , BigDecimal populationRural
+        , BigDecimal populationUrban
+        , BigDecimal populationLargestCity
+        , BigDecimal humanDevelopmentIndex
+        , BigDecimal population0To9
+        , BigDecimal population10To19
+        , BigDecimal population20To29
+        , BigDecimal population30To39
+        , BigDecimal population40To49
+        , BigDecimal population50To59
+        , BigDecimal population60To69
+        , BigDecimal population70To79
+        , BigDecimal population80Plus
+        , BigDecimal gdpUSD
+        , BigDecimal gdpPerCapita
+        , BigDecimal humanCapitalIndex
+        , BigDecimal lifeExpectancy
+        , BigDecimal smokingPrevalence
+        , BigDecimal diabetesPrevalence
+        , BigDecimal infantMortalityRate
+        , BigDecimal adultMaleMortalityRate
+        , BigDecimal adultFemaleMortalityRate
+        , BigDecimal polutionMortalityRate
+        , BigDecimal comorbidityMortalityRate
+        , BigDecimal nursesPer1000
+        , BigDecimal physiciansPer1000
+        , BigDecimal healthExpenditureUSD
+        , BigDecimal outOfPocketHealthExpenditureUSD
+        , BigDecimal mobilityRetailAndRecreation
+        , BigDecimal mobilityGroceryAndPharmacy
+        , BigDecimal mobilityParks
+        , BigDecimal mobilityTransitStations
+        , BigDecimal mobilityWorkplaces
+        , BigDecimal mobilityResidential
+        , BigDecimal schoolClosing
+        , BigDecimal workplaceClosing
+        , BigDecimal cancelPublicEvents
+        , BigDecimal restrictionsOnGatherings
+        , BigDecimal publicTransportClosing
+        , BigDecimal stayAtHomeRequirements
+        , BigDecimal restrictionsOnInternalMovement
+        , BigDecimal internationalTravelControls
+        , BigDecimal incomeSupport
+        , BigDecimal debtRelief
+        , BigDecimal fiscalMeasures
+        , BigDecimal internationalSupport
+        , BigDecimal publicInformationCampaigns
+        , BigDecimal testingPolicy
+        , BigDecimal contactTracing
+        , BigDecimal emergencyInvestmentInHealthcare
+        , BigDecimal investmentInVaccines
+        , BigDecimal facialCoverings
+        , BigDecimal vaccinationPolicy
+        , BigDecimal stringencyIndex
+        , BigDecimal averageTemperatureCelsius
+        , BigDecimal minimumTemperatureCelsius
+        , BigDecimal maximumTemperatureCelsius
+        , BigDecimal rainfallMm
+        , BigDecimal snowfallMm
+        , BigDecimal dewPoint
+        , BigDecimal relativeHumidity
+) {
+}
