@@ -1,13 +1,18 @@
-package com.myorg.views.tabs.general;
+package com.myorg.views.general;
 
 import com.myorg.config.security.MyVaadinSession;
+import com.myorg.dto.request.dashboard.DashboardTwoFilterRequest;
 import com.myorg.dto.response.configuration.CountryFindAllDataDetails;
 import com.myorg.dto.response.configuration.CountryFindAllResponse;
 import com.myorg.dto.response.dashboard.DashboardOneData;
+import com.myorg.dto.response.dashboard.DashboardOneDataDetails;
 import com.myorg.dto.response.dashboard.DashboardOneResponse;
+import com.myorg.dto.response.dashboard.DashboardTwoData;
+import com.myorg.dto.response.dashboard.DashboardTwoResponse;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
+import com.myorg.utils.GlobalConstants;
 import com.myorg.utils.PermitConstants;
 import com.myorg.utils.SecurityUtils;
 import com.myorg.views.MainLayout;
@@ -16,8 +21,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datepicker.DatePickerVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.select.SelectVariant;
@@ -35,6 +38,9 @@ import software.xdev.chartjs.model.options.Plugins;
 import software.xdev.chartjs.model.options.Title;
 import software.xdev.vaadin.chartjs.ChartContainer;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Route(value = "dashboard", layout = MainLayout.class)
@@ -59,11 +65,16 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
     private Select<CountryFindAllDataDetails> countryFilter;
     private DatePicker                        startFilter, endFilter;
 
+    private DatePicker.DatePickerI18n datePickerFormat = new DatePicker.DatePickerI18n();
+
     public TabDashboard(CovidAnalyticsService service, SecurityUtils securityUtils) {
-        this.user = (User) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USER.toString());
-        this.userSetting = (UserSetting) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
+        this.user = (User) VaadinSession.getCurrent()
+                .getAttribute(MyVaadinSession.SessionVariables.USER.toString());
+        this.userSetting = (UserSetting) VaadinSession.getCurrent()
+                .getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
         this.service = service;
         this.securityUtils = securityUtils;
+        this.datePickerFormat.setDateFormat(userSetting.dateFormat());
 
         setSizeFull();
         setMargin(false);
@@ -117,9 +128,9 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
         });
 
         tabs.setSelectedTab(null);
-        if(tabBoardOne.isVisible()) {
+        if (tabBoardOne.isVisible()) {
             tabs.setSelectedTab(tabBoardOne);
-        } else if(tabBoardOne.isVisible()) {
+        } else if (tabBoardOne.isVisible()) {
             tabs.setSelectedTab(tabBoardTwo);
         }
     }
@@ -147,30 +158,28 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
     }
 
     private void buildBoardOne() {
-        String json =
-                new BarChart(
-                        new BarData()
-                                .addLabels("Infections", "Deaths")
-                                .addDataset(
-                                        new BarDataset()
-                                                .setLabel("Amount of People")
-                                                .setBackgroundColor("#ffa64d")
-                                                .addData(1)
-                                                .addData(2)
 
-                                )
+        DashboardOneData data = fetchDashboardOneData();
 
-                ).setOptions(new BarOptions()
-                        .setResponsive(true)
-                        .setMaintainAspectRatio(false)
-                        .setPlugins(new Plugins()
-                                .setTitle(
-                                        new Title()
-                                                .setText("COVID-19 Dataset")
-                                                .setDisplay(true)
-                                )
-                        )
-                ).toJson();
+        List<BarDataset> datasets = new ArrayList<>();
+        LinkedList<String> availableColors = new LinkedList<>(GlobalConstants.COLOR_LIST);
+
+        for (DashboardOneDataDetails detail : data.details()) {
+            BarDataset dataset = new BarDataset().setLabel(detail.country())
+                    .setBackgroundColor(availableColors.isEmpty() ? "#ffffff"
+                                                                  : availableColors.removeFirst())
+                    .addData(detail.population()).addData(detail.populationMale())
+                    .addData(detail.populationFemale());
+            datasets.add(dataset);
+        }
+
+        String json = new BarChart(new BarData()
+                .addLabels("Population Total", "Population Male", "Population Female")
+                .setDatasets(datasets)).setOptions(
+                new BarOptions().setResponsive(true).setMaintainAspectRatio(false)
+                        .setPlugins(new Plugins().setTitle(
+                                new Title().setText("COVID-19 Dataset")
+                                        .setDisplay(true)))).toJson();
 
         chartOneContainer.showChart(json);
     }
@@ -200,32 +209,23 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
     }
 
     private void buildBoardTwo() {
-        String json =
-                new BarChart(
-                        new BarData()
-                                .addLabels("Infections", "Deaths", "Partial Vaccinations", "Full Vaccinations", "Vaccine Doses Administrated")
-                                .addDataset(
-                                        new BarDataset()
-                                                .setLabel("Amount of People")
-                                                .setBackgroundColor("#ffa64d")
-                                                .addData(1)
-                                                .addData(2)
-                                                .addData(3)
-                                                .addData(4)
-                                                .addData(5)
-                                )
-
-                ).setOptions(new BarOptions()
-                        .setResponsive(true)
-                        .setMaintainAspectRatio(false)
-                        .setPlugins(new Plugins()
-                                .setTitle(
-                                        new Title()
-                                                .setText("COVID-19 Filtered Dataset")
-                                                .setDisplay(true)
-                                )
-                        )
-                ).toJson();
+        DashboardTwoData data = fetchDashboardTwoData();
+        String json = new BarChart(new BarData()
+                .addLabels("Infections", "Deaths", "Partial Vaccinations",
+                        "Full Vaccinations", "Vaccine Doses Administrated", "New Tested").addDataset(
+                        new BarDataset().setLabel("Amount of People")
+                                .setBackgroundColor("#ffa64d")
+                                .addData(data.infections())
+                                .addData(data.deaths())
+                                .addData(data.newPersonVaccinated())
+                                .addData(data.newPersonFullyVaccinated())
+                                .addData(data.newVaccineDosesAdministered())
+                                .addData(data.newTested())
+                ))
+                .setOptions(new BarOptions().setResponsive(true).setMaintainAspectRatio(false)
+                .setPlugins(new Plugins().setTitle(
+                        new Title().setText("COVID-19 Filtered Dataset")
+                                .setDisplay(true)))).toJson();
 
         chartTwoContainer.showChart(json);
     }
@@ -233,6 +233,7 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
     private void buildBoardTwoFilters() {
 
         startFilter = new DatePicker("Start");
+        startFilter.setI18n(datePickerFormat);
         startFilter.setWidthFull();
         startFilter.setClearButtonVisible(true);
         startFilter.getElement().setAttribute("theme", "small");
@@ -240,10 +241,11 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
         startFilter.addThemeVariants(DatePickerVariant.LUMO_SMALL);
 
         endFilter = new DatePicker("End");
+        endFilter.setI18n(datePickerFormat);
         endFilter.setWidthFull();
         endFilter.setClearButtonVisible(true);
         endFilter.getElement().setAttribute("theme", "small");
-                endFilter.addValueChangeListener(e -> loadDashboardTwo());
+        endFilter.addValueChangeListener(e -> loadDashboardTwo());
         endFilter.addThemeVariants(DatePickerVariant.LUMO_SMALL);
 
         countryFilter = new Select<>();
@@ -294,8 +296,32 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
                 throw new RuntimeException("No response from server");
             }
 
-            if (response.data() == null
-                    && response.responseInfo() != null) {
+            if (response.data() == null && response.responseInfo() != null) {
+                throw new RuntimeException(response.responseInfo().message());
+            }
+
+            return response.data();
+        } catch (Exception e) {
+            new ErrorNotification(e.getMessage());
+        }
+        return null;
+    }
+
+    private DashboardTwoData fetchDashboardTwoData() {
+        try {
+
+            DashboardTwoFilterRequest request = DashboardTwoFilterRequest.builder()
+                    .country(countryFilter.getValue() != null ? countryFilter.getValue()
+                            .code() : null).dateStart(startFilter.getValue())
+                    .dateEnd(endFilter.getValue()).build();
+
+            DashboardTwoResponse response = service.getBoardTwoData(request);
+
+            if (response == null) {
+                throw new RuntimeException("No response from server");
+            }
+
+            if (response.data() == null && response.responseInfo() != null) {
                 throw new RuntimeException(response.responseInfo().message());
             }
 

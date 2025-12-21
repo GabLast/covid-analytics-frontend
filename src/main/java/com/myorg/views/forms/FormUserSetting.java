@@ -1,4 +1,4 @@
-package com.myorg.views.general;
+package com.myorg.views.forms;
 
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.dto.request.configurations.UserSettingRequest;

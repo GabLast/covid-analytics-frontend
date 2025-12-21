@@ -2,19 +2,21 @@ package com.myorg.service.impl;
 
 import com.myorg.config.AppInfo;
 import com.myorg.config.security.MyVaadinSession;
+import com.myorg.dto.request.dashboard.DashboardTwoFilterRequest;
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
 import com.myorg.dto.request.process.CovidHeaderFilterRequest;
 import com.myorg.dto.request.process.CovidLoadRequest;
+import com.myorg.dto.request.security.LoginRequest;
 import com.myorg.dto.response.CountResponse;
 import com.myorg.dto.response.configuration.CountryFindAllResponse;
 import com.myorg.dto.response.dashboard.DashboardOneResponse;
+import com.myorg.dto.response.dashboard.DashboardTwoResponse;
 import com.myorg.dto.response.process.CovidDetailFilterResponse;
 import com.myorg.dto.response.process.CovidHeaderFilterResponse;
 import com.myorg.dto.response.process.CovidLoadResponse;
 import com.myorg.dto.response.security.LoginResponse;
-import com.myorg.dto.response.security.UserFindAllResponse;
-import com.myorg.dto.request.security.LoginRequest;
 import com.myorg.dto.response.security.PermitResponse;
+import com.myorg.dto.response.security.UserFindAllResponse;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
@@ -64,7 +66,7 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
     private final String COUNTRY_ENDPOINT = "/country";
 
     //dashboard
-    private final String DASHBOARD_ENDPOINT = "/dashboard";
+    private final String DASHBOARD_ENDPOINT     = "/dashboard";
     private final String DASHBOARD_ONE_ENDPOINT = "/one";
     private final String DASHBOARD_TWO_ENDPOINT = "/two";
 
@@ -172,9 +174,9 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("userId", String.valueOf(request.getUserId()));
             params.put("description", request.getDescription());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
             params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
 
             params.put("offset", String.valueOf(request.getOffset()));
             params.put("limit", String.valueOf(request.getLimit()));
@@ -205,9 +207,9 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("userId", String.valueOf(request.getUserId()));
             params.put("description", request.getDescription());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
             params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
             HttpRequest req =
                     builderGET(LOAD_ENDPOINT + COUNT_ALL_ENDPOINT, params).build();
 
@@ -231,9 +233,9 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("headerId", String.valueOf(request.getHeaderId()));
             params.put("country", request.getCountry());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
             params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
 
             params.put("offset", String.valueOf(request.getOffset()));
             params.put("limit", String.valueOf(request.getLimit()));
@@ -265,9 +267,9 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("headerId", String.valueOf(request.getHeaderId()));
             params.put("country", request.getCountry());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
             params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), null));
+                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
 
             HttpRequest req =
                     builderGET(LOAD_ENDPOINT + DETAIL_ENDPOINT + COUNT_ALL_ENDPOINT,
@@ -288,9 +290,33 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
         HttpResponse<String> response;
 
         try {
-            HttpRequest req = builderGET(LOAD_ENDPOINT, null).build();
+
+            HttpRequest req =
+                    builderGET(DASHBOARD_ENDPOINT + DASHBOARD_ONE_ENDPOINT, null).build();
             response = client.send(req, HttpResponse.BodyHandlers.ofString());
             return objectMapper.readValue(response.body(), DashboardOneResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public DashboardTwoResponse getBoardTwoData(DashboardTwoFilterRequest request) {
+        HttpResponse<String> response;
+
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("country", request.country());
+            params.put("dateStart",
+                    DateUtilities.getLocalDateAsString(request.dateStart(), getUserSetting()));
+            params.put("dateEnd",
+                    DateUtilities.getLocalDateAsString(request.dateEnd(), getUserSetting()));
+
+            HttpRequest req = builderGET(DASHBOARD_ENDPOINT + DASHBOARD_TWO_ENDPOINT,
+                    params).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), DashboardTwoResponse.class);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;

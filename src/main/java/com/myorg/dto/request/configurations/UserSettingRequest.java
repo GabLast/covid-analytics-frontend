@@ -1,4 +1,6 @@
 package com.myorg.dto.request.configurations;
 
-public record UserSettingRequest() {
+import com.myorg.dto.JsonRequest;
+
+public record UserSettingRequest() implements JsonRequest {
 }

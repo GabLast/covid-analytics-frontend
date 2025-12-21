@@ -1,7 +1,8 @@
 package com.myorg.dto.response.security;
 
+import com.myorg.dto.JsonResponse;
 import lombok.Builder;
 
 @Builder
-public record UserFindAllResponse(UserFindAllData data) {
+public record UserFindAllResponse(UserFindAllData data) implements JsonResponse {
 }

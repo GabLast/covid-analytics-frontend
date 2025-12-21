@@ -1,34 +1,18 @@
-# My Application README
+# Covid Analytics FrontEnd Service Project
 
-- [ ] TODO Replace or update this README with instructions relevant to your application
+### Tech Stack
 
-To start the application in development mode, import it into your IDE and run the `Application` class. 
-You can also start the application from the command line by running: 
+1. Java v21
+2. Spring Boot v4.0.0
+3. Vaadin v25.0.0
+4. Chart.js (Charts plugin - wrapped version for Vaadin)
 
-```bash
-./mvnw
-```
+### Check list
 
-To build the application in production mode, run:
-
-```bash
-./mvnw package
-```
-
-To build a Docker image, run:
-
-```bash
-docker build -t my-application:latest .
-```
-
-If you use commercial components, pass the license key as a build secret:
-
-```bash
-docker build --secret id=proKey,src=$HOME/.vaadin/proKey .
-```
-
-## Getting Started
-
-The [Quick Start](https://vaadin.com/docs/v25/getting-started/quick-start) tutorial helps you get started with Vaadin in 
-around 10 minutes. This tutorial walks you through building a simple application, introducing the core concepts along 
-the way.
+1. Dataset Loading (ETL) Flow from the following sources:
+- JSON URL
+- JSON Object
+- CSV
+2. Visualization of relevant data through a dashboard
+3. Authentication Flow
+4. Security Management (Extra)

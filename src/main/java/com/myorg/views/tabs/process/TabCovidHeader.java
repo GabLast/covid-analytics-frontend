@@ -2,7 +2,6 @@ package com.myorg.views.tabs.process;
 
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.dto.request.process.CovidHeaderFilterRequest;
-import com.myorg.dto.request.process.CovidLoadRequest;
 import com.myorg.dto.response.process.CovidHeaderFilterDataDetails;
 import com.myorg.dto.response.process.CovidLoadResponse;
 import com.myorg.dto.response.security.UserFindAllDataDetails;
@@ -66,6 +65,7 @@ public class TabCovidHeader extends Div
 
     private final User        user;
     private final UserSetting userSetting;
+    private DatePicker.DatePickerI18n datePickerFormat = new DatePicker.DatePickerI18n();
 
     private final CovidAnalyticsService service;
     private final SecurityUtils         securityUtils;
@@ -91,6 +91,7 @@ public class TabCovidHeader extends Div
                 .getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
         this.service = service;
         this.securityUtils = securityUtils;
+        this.datePickerFormat.setDateFormat(userSetting.dateFormat());
 
         prepareComponents();
     }
@@ -119,12 +120,14 @@ public class TabCovidHeader extends Div
         descriptionFilter.addValueChangeListener(e -> refreshData());
 
         startFilter = new DatePicker("Start");
+        startFilter.setI18n(datePickerFormat);
         startFilter.setWidthFull();
         startFilter.setClearButtonVisible(true);
         startFilter.getElement().setAttribute("theme", "small");
         startFilter.addValueChangeListener(e -> refreshData());
 
         endFilter = new DatePicker("End");
+        endFilter.setI18n(datePickerFormat);
         endFilter.setWidthFull();
         endFilter.setClearButtonVisible(true);
         endFilter.getElement().setAttribute("theme", "small");
@@ -176,7 +179,7 @@ public class TabCovidHeader extends Div
         form.add(btnClearFilter, 1);
         form.add(new Div(), 4);
 
-        form.add(userFilter, descriptionFilter, enabledFilter, startFilter,
+        form.add(userFilter, descriptionFilter, enabledFilter, startFilter, endFilter,
                 enabledFilter);
 
         return form;

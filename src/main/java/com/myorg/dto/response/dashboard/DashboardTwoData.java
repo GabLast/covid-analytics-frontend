@@ -1,5 +1,6 @@
 package com.myorg.dto.response.dashboard;
 
+import com.myorg.dto.JsonResponse;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -8,8 +9,9 @@ import java.math.BigDecimal;
 public record DashboardTwoData(
         BigDecimal infections,
         BigDecimal deaths,
-        BigDecimal partialVaccinations,
-        BigDecimal fullVaccinations,
-        BigDecimal vaccinesDosesAdministrated
-) {
+        BigDecimal newPersonVaccinated,
+        BigDecimal newPersonFullyVaccinated,
+        BigDecimal newTested,
+        BigDecimal newVaccineDosesAdministered
+) implements JsonResponse {
 }

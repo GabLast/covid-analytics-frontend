@@ -1,15 +1,12 @@
 package com.myorg.dto.response.dashboard;
 
+import com.myorg.dto.JsonResponse;
 import lombok.Builder;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 public record DashboardOneData(
-        BigDecimal infections,
-        BigDecimal deaths,
-        BigDecimal partialVaccinations,
-        BigDecimal fullVaccinations,
-        BigDecimal vaccinesDosesAdministrated
-) {
+        List<DashboardOneDataDetails> details
+) implements JsonResponse {
 }

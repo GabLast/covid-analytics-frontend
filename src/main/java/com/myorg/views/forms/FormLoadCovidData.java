@@ -41,7 +41,6 @@ import org.vaadin.crudui.crud.LazyCrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Route(value = "form-covid-load/:id?/:view?", layout = MainLayout.class)
@@ -137,6 +136,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
         });
 
         dpDate = new DatePicker("Date");
+        dpDate.setI18n(datePickerFormat);
         dpDate.setRequiredIndicatorVisible(true);
         dpDate.setErrorMessage("Complete the required fields");
         dpDate.setSizeFull();
@@ -199,6 +199,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
     private Component buildDetailsForm() {
 
         startFilter = new DatePicker("Start");
+        startFilter.setI18n(datePickerFormat);
         startFilter.setWidthFull();
         startFilter.setClearButtonVisible(true);
         startFilter.getElement().setAttribute("theme", "small");
@@ -206,6 +207,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
         startFilter.addThemeVariants(DatePickerVariant.LUMO_SMALL);
 
         endFilter = new DatePicker("End");
+        endFilter.setI18n(datePickerFormat);
         endFilter.setWidthFull();
         endFilter.setClearButtonVisible(true);
         endFilter.getElement().setAttribute("theme", "small");
@@ -455,9 +457,9 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
         if (objectToSave == null || objectToSave.id() == 0L) {
             title = "Create" + " " + "Load Covid Data";
         } else if (objectToSave.id() != 0L && !view) {
-            title = "Edit" + " " + "Load Covid Data" + " - ID " + objectToSave.id();
+            title = "Edit" + " " + "Load Covid Data" + " - ID [" + objectToSave.id() + "]";
         } else if (objectToSave.id() != 0L && view) {
-            title = "View" + " " + "Load Covid Data" + " - ID " + objectToSave.id();
+            title = "View" + " " + "Load Covid Data" + " - ID [" + objectToSave.id() + "]";
         } else {
             title = "No Data";
         }

@@ -1,18 +1,20 @@
 package com.myorg.service;
 
+import com.myorg.dto.request.dashboard.DashboardTwoFilterRequest;
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
 import com.myorg.dto.request.process.CovidHeaderFilterRequest;
 import com.myorg.dto.request.process.CovidLoadRequest;
+import com.myorg.dto.request.security.LoginRequest;
 import com.myorg.dto.response.CountResponse;
 import com.myorg.dto.response.configuration.CountryFindAllResponse;
 import com.myorg.dto.response.dashboard.DashboardOneResponse;
+import com.myorg.dto.response.dashboard.DashboardTwoResponse;
 import com.myorg.dto.response.process.CovidDetailFilterResponse;
 import com.myorg.dto.response.process.CovidHeaderFilterResponse;
 import com.myorg.dto.response.process.CovidLoadResponse;
 import com.myorg.dto.response.security.LoginResponse;
-import com.myorg.dto.response.security.UserFindAllResponse;
-import com.myorg.dto.request.security.LoginRequest;
 import com.myorg.dto.response.security.PermitResponse;
+import com.myorg.dto.response.security.UserFindAllResponse;
 
 
 public interface CovidAnalyticsService {
@@ -39,6 +41,7 @@ public interface CovidAnalyticsService {
 
     //Dashboard
     DashboardOneResponse getBoardOneData();
+    DashboardTwoResponse getBoardTwoData(DashboardTwoFilterRequest request);
 
     //Data Fetch
     PermitResponse getPermits();
