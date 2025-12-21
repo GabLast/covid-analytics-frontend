@@ -1,10 +1,8 @@
 package com.myorg.views.general;
 
-
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.dto.request.configurations.UserSettingRequest;
 import com.myorg.encapsulations.User;
-import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
 import com.myorg.views.generics.dialog.ConfirmWindow;
 import com.myorg.views.generics.notifications.ErrorNotification;
@@ -127,7 +125,7 @@ public class FormUserSetting extends Dialog {
         formLayout = new FormLayout();
         formLayout.setSizeUndefined();
         formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("1px", 1),
+                new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 4));

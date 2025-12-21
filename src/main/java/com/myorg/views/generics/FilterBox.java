@@ -21,7 +21,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.shared.ThemeVariant;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -88,7 +87,7 @@ public class FilterBox extends Accordion {
         btnClearFilter.addClickListener(buttonClickEvent -> clearAll());
 
         form = new FormLayout();
-        form.setResponsiveSteps(new FormLayout.ResponsiveStep("1px", 1),
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("300px", 2),
                 new FormLayout.ResponsiveStep("600px", 3),
                 new FormLayout.ResponsiveStep("900px", 4),

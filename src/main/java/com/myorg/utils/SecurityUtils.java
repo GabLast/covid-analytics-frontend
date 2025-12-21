@@ -1,39 +1,50 @@
 package com.myorg.utils;
 
 import com.myorg.config.security.AuthenticatedUser;
+import com.myorg.dto.response.security.PermitResponse;
 import com.myorg.service.CovidAnalyticsService;
-import lombok.RequiredArgsConstructor;
+import com.myorg.views.generics.notifications.ErrorNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public final class SecurityUtils {
 
     private final AuthenticatedUser authenticatedUser;
     private final CovidAnalyticsService service;
-    private Set<String> permits;
+
+    public SecurityUtils(AuthenticatedUser authenticatedUser,
+            CovidAnalyticsService service, Set<String> permits) {
+        this.authenticatedUser = authenticatedUser;
+        this.service = service;
+    }
 
     public Set<String> getPermits() {
-        if(permits == null || permits.isEmpty()) {
-            permits = service.getPermits().permits();
-            log.info("Permit list is empty");
-        }
+        try {
+            PermitResponse response = service.getPermits();
 
-        return this.permits;
+            if (response == null) {
+                throw new RuntimeException("No response from server");
+            }
+
+            if (response.data() == null && response.responseInfo() != null) {
+                throw new RuntimeException(response.responseInfo().message());
+            }
+            return response.data().permits();
+        } catch (Exception e) {
+            new ErrorNotification(e.getMessage());
+            return null;
+        }
     }
 
     public boolean isAccessGranted(String permit) {
-//        final Set<String> list = service.getPermits().permits();
-
-//        return authenticatedUser.get().get().grantedAuthorities().contains(permit);
-        return true;
+        if(authenticatedUser.get().isPresent()) {
+            return authenticatedUser.get().get().grantedAuthorities().contains(permit);
+        } else {
+            return false;
+        }
     }
-
 }

@@ -31,7 +31,7 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
     public static final Boolean TYPE_TABS_AS_DETAILS = true;
 
     protected Button btnExit, btnSave;
-    protected SecurityForm securityForm;
+//    protected SecurityForm securityForm;
     protected Tabs tabs;
     protected Tab securityTab, generalTab;
     protected Div contentDiv;
@@ -40,8 +40,8 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
     protected User        user;
     protected UserSetting userSetting;
     protected T           objectToSave;
-    protected boolean view;
-    private boolean type;
+    protected     boolean view;
+    private final boolean type;
 
     public BaseForm(boolean type) {
         this.user = (User) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USER.toString());
@@ -76,7 +76,7 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
         hlExit.setJustifyContentMode(JustifyContentMode.START);
         hlExit.add(btnExit);
 
-        btnSave = new Button("Save", new Icon(VaadinIcon.CHECK));
+        btnSave = new Button("Save (F10)", new Icon(VaadinIcon.CHECK));
         btnSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         btnSave.addClickShortcut(Key.F10);
         btnSave.addClickListener(buttonClickEvent -> {
@@ -113,18 +113,19 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
     private Component buildForm() {
         generalTab = new Tab("General");
         generalTab.setVisible(true);
-        securityTab = new Tab("Security");
-        securityTab.setVisible(false);
+//        securityTab = new Tab("Security");
+//        securityTab.setVisible(false);
 
         if (type) {
-            tabs = new Tabs(securityTab);
+//            tabs = new Tabs(securityTab);
+            tabs = new Tabs();
         } else {
-            tabs = new Tabs(generalTab, securityTab);
+            tabs = new Tabs(generalTab/*, securityTab*/);
         }
         tabs.setWidthFull();
         tabs.setAutoselect(true);
 
-        securityForm = new SecurityForm();
+//        securityForm = new SecurityForm();
 
         contentDiv = new Div();
         contentDiv.setWidthFull();
@@ -132,7 +133,7 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
         formLayout = new FormLayout();
         formLayout.setSizeUndefined();
         formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("1px", 1),
+                new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 4));
@@ -146,15 +147,16 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
             }
 
             if (type) {
-                if (event.getSelectedTab().equals(securityTab)) {
-                    contentDiv.add(securityForm);
-                }
+//                if (event.getSelectedTab().equals(securityTab)) {
+//                    contentDiv.add(securityForm);
+//                }
             } else {
                 if (event.getSelectedTab().equals(generalTab)) {
                     contentDiv.add(formLayout);
-                } else if (event.getSelectedTab().equals(securityTab)) {
-                    contentDiv.add(securityForm);
                 }
+//                else if (event.getSelectedTab().equals(securityTab)) {
+//                    contentDiv.add(securityForm);
+//                }
             }
         });
 
@@ -214,8 +216,8 @@ public abstract class BaseForm<T> extends VerticalLayout implements HasDynamicTi
 
             if (id != 0L) {
                 fillFields();
-                securityForm.fillFields(objectToSave);
-                securityTab.setVisible(true);
+//                securityForm.fillFields(objectToSave);
+//                securityTab.setVisible(true);
             }
         } catch (Exception ignored) {
         }

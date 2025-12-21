@@ -10,8 +10,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.VaadinSession;
 
-import java.util.Date;
-
 public class SecurityForm extends VerticalLayout {
 
     private TextField tfId, tfCreatedBy, tfModifiedBy, tfCreationDate, tfModifiedDate,

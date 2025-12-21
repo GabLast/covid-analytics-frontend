@@ -2,19 +2,14 @@ package com.myorg.views.general;
 
 import com.myorg.utils.GlobalConstants;
 import com.myorg.views.MainLayout;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import jakarta.annotation.security.PermitAll;
-
-import java.io.File;
 
 @Route(value = "about", layout = MainLayout.class)
 @PermitAll

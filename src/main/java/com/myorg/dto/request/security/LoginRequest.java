@@ -1,4 +1,4 @@
-package com.myorg.dto.security;
+package com.myorg.dto.request.security;
 
 import com.myorg.dto.JsonRequest;
 import lombok.Builder;

@@ -1,12 +1,10 @@
 package com.myorg.views.general;
 
-
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.encapsulations.User;
 import com.myorg.utils.GlobalConstants;
 import com.myorg.views.MainLayout;
 import com.myorg.views.authentication.LoginView;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

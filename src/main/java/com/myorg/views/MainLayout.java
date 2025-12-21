@@ -6,7 +6,7 @@ import com.myorg.config.security.MyVaadinSession;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
-import com.myorg.utils.GlobalConstants;
+import com.myorg.utils.PermitConstants;
 import com.myorg.utils.SecurityUtils;
 import com.myorg.views.authentication.LoginView;
 import com.myorg.views.general.AboutView;
@@ -14,7 +14,8 @@ import com.myorg.views.general.FormUserSetting;
 import com.myorg.views.general.HomeView;
 import com.myorg.views.generics.navigation.MySideNavItem;
 import com.myorg.views.generics.notifications.ErrorNotification;
-import com.myorg.views.generics.notifications.WarningNotification;
+import com.myorg.views.tabs.general.TabDashboard;
+import com.myorg.views.tabs.process.TabCovidHeader;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -25,13 +26,11 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
@@ -43,7 +42,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.annotation.security.PermitAll;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -104,15 +102,23 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
     private Div createNavigation() {
         Div div = new Div();
 
+        SideNav dashboard = new SideNav();
+        dashboard.addItem(
+                new MySideNavItem("Dashboard", TabDashboard.class, VaadinIcon.DASHBOARD.create(),
+                        securityUtils.isAccessGranted(PermitConstants.DASHBOARD)));
+        div.add(dashboard);
+
+        //***************************************************************
+
         SideNav processesModule = new SideNav();
         processesModule.setCollapsible(true);
         processesModule.setExpanded(true);
-        processesModule.setLabel("Proceses");
-        processesModule.setVisible(securityUtils.isAccessGranted("PROCESSES_MODULE"));
-        //        processesModule.addItem(
-        //                new MySideNavItem(UI.getCurrent().getTranslation("title.testdata"),
-        //                        TabTestData.class, VaadinIcon.FILE.create(),
-        //                        securityUtils.isAccessGranted("PROCESSES_MODULE")));
+        processesModule.setLabel("Processes");
+        processesModule.setVisible(securityUtils.isAccessGranted(PermitConstants.PROCESSES_MODULE));
+        processesModule.addItem(
+                new MySideNavItem("Covid Data Load",
+                        TabCovidHeader.class, VaadinIcon.FILE.create(),
+                        securityUtils.isAccessGranted(PermitConstants.MENU_LOAD_COVID_DATA)));
         div.add(processesModule);
 
         //***************************************************************
@@ -128,6 +134,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
         div.add(securityModule);
 
         //***************************************************************
+
         SideNav aboutNav = new SideNav();
         aboutNav.addItem(
                 new MySideNavItem("About", AboutView.class, VaadinIcon.BOOKMARK.create(),
@@ -167,25 +174,25 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
             div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
             menu.add(div);
 
-            menu.getSubMenu().addItem("Settings", event -> {
-                new FormUserSetting(service, userSetting -> {
-                    UI.getCurrent().getPage().reload();
-                    try {
-                        if (userSetting != null) {
-                            UI.getCurrent().getSession().setAttribute(
-                                    MyVaadinSession.SessionVariables.USERSETTINGS.toString(),
-                                    userSetting);
-                            UI.getCurrent().getPage().reload();
-                            this.settings = (UserSetting) VaadinSession.getCurrent()
-                                    .getAttribute(
-                                            MyVaadinSession.SessionVariables.USERSETTINGS.toString());
-                        }
-                    } catch (Exception e) {
-                        new ErrorNotification(e.getMessage());
-                    }
-
-                });
-            });
+//            menu.getSubMenu().addItem("Settings", event -> {
+//                new FormUserSetting(service, userSetting -> {
+//                    UI.getCurrent().getPage().reload();
+//                    try {
+//                        if (userSetting != null) {
+//                            UI.getCurrent().getSession().setAttribute(
+//                                    MyVaadinSession.SessionVariables.USERSETTINGS.toString(),
+//                                    userSetting);
+//                            UI.getCurrent().getPage().reload();
+//                            this.settings = (UserSetting) VaadinSession.getCurrent()
+//                                    .getAttribute(
+//                                            MyVaadinSession.SessionVariables.USERSETTINGS.toString());
+//                        }
+//                    } catch (Exception e) {
+//                        new ErrorNotification(e.getMessage());
+//                    }
+//
+//                });
+//            });
 
             menu.getSubMenu().addItem("Sign Out", e -> {
                 authenticatedUser.logout();

@@ -1,6 +1,5 @@
 package com.myorg.views.generics.dialog;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 
 public class ConfirmWindow extends ConfirmDialog {
