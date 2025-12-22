@@ -17,6 +17,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -52,10 +53,11 @@ public class FormProfile extends BaseForm<ProfileRequest> {
     private List<PermitRow> detailsDelete;
 
     //details
-    private Grid<PermitRow>                  grid;
-    private CheckboxGroup<PermitFetchDetail> permitChecks;
-    private Button btnAdd;
-    private FormLayout detailForm;
+    private Grid<PermitRow>                        grid;
+    private CheckboxGroup<PermitFetchDetail>       permitChecks;
+    private MultiSelectComboBox<PermitFetchDetail> permitsCombo;
+    private Button                                 btnAdd;
+    private FormLayout                             detailForm;
 
     public FormProfile(CovidAnalyticsService service, SecurityUtils securityUtils) {
         super(BaseForm.TYPE_TABS_AS_DETAILS);
@@ -71,16 +73,17 @@ public class FormProfile extends BaseForm<ProfileRequest> {
             PermitFetchResponse response = service.getPermits();
 
             if (response == null) {
-                throw new RuntimeException("No response from server on PermitFetchResponse");
+                throw new RuntimeException(
+                        "No response from server on PermitFetchResponse");
             }
 
-            if ((response.data() == null
-                    || response.data().permits() == null)
+            if ((response.data() == null || response.data().permits() == null)
                     && response.responseInfo() != null) {
                 throw new RuntimeException(response.responseInfo().message());
             }
 
-            permitChecks.setItems(response.data().permits());
+//            permitChecks.setItems(response.data().permits());
+            permitsCombo.setItems(response.data().permits());
         } catch (Exception e) {
             new ErrorNotification(e.getMessage());
         }
@@ -126,12 +129,19 @@ public class FormProfile extends BaseForm<ProfileRequest> {
     private Component buildDetails() {
         configGrid();
 
+        VerticalLayout aux = new VerticalLayout();
+        aux.setMargin(false);
+        aux.setPadding(false);
+        aux.setSpacing(true);
+        aux.setMaxWidth("30%");
+        aux.add(buildDetailsForm());
+
         HorizontalLayout hl = new HorizontalLayout();
         hl.setSizeFull();
         hl.setSpacing(true);
         hl.setPadding(false);
         hl.setMargin(false);
-        hl.add(buildDetailsForm());
+        hl.add(aux);
         hl.add(grid);
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -148,69 +158,73 @@ public class FormProfile extends BaseForm<ProfileRequest> {
         btnAdd = new Button("Add");
         btnAdd.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         btnAdd.addClickListener(event -> {
-            Set<PermitFetchDetail> items = permitChecks.getSelectedItems();
+//            Set<PermitFetchDetail> items = permitChecks.getSelectedItems();
+            Set<PermitFetchDetail> items = permitsCombo.getSelectedItems();
             for (PermitFetchDetail item : items) {
-                if(details.stream().noneMatch(it-> it.code().equalsIgnoreCase(item.code()))) {
-                    details.add(PermitRow.builder()
-                                    .id(item.id())
-                                    .permit(item.permit())
-                                    .code(item.code())
-                            .build());
+                if (details.stream()
+                        .noneMatch(it -> it.code().equalsIgnoreCase(item.code()))) {
+                    details.add(PermitRow.builder().id(item.id()).permit(item.permit())
+                            .code(item.code()).build());
                 }
             }
             grid.setItems(details);
-            permitChecks.clear();
+//            permitChecks.clear();
+            permitsCombo.clear();
         });
 
-        permitChecks = new CheckboxGroup<>("Permits");
-        permitChecks.setRequired(true);
-        permitChecks.setRequiredIndicatorVisible(true);
-        permitChecks.setItemLabelGenerator(PermitFetchDetail::permit);
+//        permitChecks = new CheckboxGroup<>("Permits");
+//        permitChecks.setRequired(true);
+//        permitChecks.setRequiredIndicatorVisible(true);
+//        permitChecks.setItemLabelGenerator(PermitFetchDetail::permit);
+
+        permitsCombo = new MultiSelectComboBox<>();
+        permitsCombo.setLabel("Permits");
+        permitsCombo.setRequired(false);
+        permitsCombo.setErrorMessage("Fill the required fields");
+        permitsCombo.setItemLabelGenerator(PermitFetchDetail::permit);
 
         detailForm = new FormLayout();
-        detailForm.setMinWidth("50%");
-        detailForm.setMaxWidth("50%");
+        detailForm.setSizeFull();
         detailForm.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 3));
 
-        detailForm.add(permitChecks, 1);
-        detailForm.add(btnAdd, 1);
+//        detailForm.add(permitChecks, 1);
+        detailForm.add(permitsCombo, 4);
+        detailForm.add(btnAdd, 4);
         return detailForm;
     }
 
     private void configGrid() {
         grid = new Grid<>();
-        grid.addThemeVariants(
-                GridVariant.LUMO_COMPACT,
-                GridVariant.LUMO_COLUMN_BORDERS,
-                GridVariant.LUMO_ROW_STRIPES,
-                GridVariant.LUMO_WRAP_CELL_CONTENT
-        );
+        grid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_COLUMN_BORDERS,
+                GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
         grid.setSizeFull();
         grid.setSelectionMode(Grid.SelectionMode.NONE);
         grid.setColumnReorderingAllowed(false);
+        grid.addComponentColumn(it -> {
+                    Button btnDelete = new Button(new Icon(VaadinIcon.TRASH));
+                    btnDelete.setEnabled(!view);
+                    btnDelete.setSizeFull();
+                    btnDelete.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                            ButtonVariant.LUMO_ERROR);
+                    btnDelete.addClickListener(e -> {
+
+                        details.remove(it);
+                        if (it.profilePermitId() != null && it.profilePermitId() != 0L) {
+                            detailsDelete.add(it);
+                        }
+                        grid.setItems(details);
+
+                        new SuccessNotification("Successfully deleted the permit");
+                    });
+
+                    return btnDelete;
+                }).setHeader("").setKey("action").setResizable(true).setFlexGrow(0)
+                .setWidth("75px");
         grid.addColumn(PermitRow::permit).setHeader("Permit").setWidth("200px")
                 .setFlexGrow(1).setResizable(true).setSortable(false);
-        grid.addComponentColumn(it -> {
-            Button btnDelete = new Button(new Icon(VaadinIcon.TRASH));
-            btnDelete.setEnabled(!view);
-            btnDelete.setSizeFull();
-            btnDelete.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-            btnDelete.addClickListener(e -> {
-
-                details.remove(it);
-                if(it.profilePermitId() != null && it.profilePermitId() != 0L) {
-                    detailsDelete.add(it);
-                }
-                grid.setItems(details);
-
-                new SuccessNotification("Successfully deleted the permit");
-            });
-
-            return btnDelete;
-        }).setHeader("").setKey("action").setResizable(true).setFlexGrow(0).setWidth("75px");
     }
 
     @Override
@@ -220,7 +234,8 @@ public class FormProfile extends BaseForm<ProfileRequest> {
         btnSave.setEnabled(false);
 
         detailForm.setVisible(false);
-        permitChecks.setEnabled(false);
+//        permitChecks.setEnabled(false);
+        permitsCombo.setEnabled(false);
         btnAdd.setVisible(false);
     }
 
@@ -284,8 +299,7 @@ public class FormProfile extends BaseForm<ProfileRequest> {
             ProfileResponse response = service.postProfile(ProfileRequest.builder()
                     .id(responseGet != null ? responseGet.data().id() : null)
                     .name(tfName.getValue()).description(tfDescription.getValue().trim())
-                            .permits(details).permitsDelete(detailsDelete)
-                    .build());
+                    .permits(details).permitsDelete(detailsDelete).build());
 
             if (response == null) {
                 throw new RuntimeException("No response from server on postProfile");
@@ -310,11 +324,9 @@ public class FormProfile extends BaseForm<ProfileRequest> {
         if (objectToSave == null || objectToSave.id() == 0L) {
             title = "Create" + " " + "Profile";
         } else if (objectToSave.id() != 0L && !view) {
-            title = "Edit" + " " + "Profile" + " - ID [" + objectToSave.id()
-                    + "]";
+            title = "Edit" + " " + "Profile" + " - ID [" + objectToSave.id() + "]";
         } else if (objectToSave.id() != 0L && view) {
-            title = "View" + " " + "Profile" + " - ID [" + objectToSave.id()
-                    + "]";
+            title = "View" + " " + "Profile" + " - ID [" + objectToSave.id() + "]";
         } else {
             title = "No Data";
         }
@@ -367,7 +379,8 @@ public class FormProfile extends BaseForm<ProfileRequest> {
     private void buildObjectToSave(ProfileResponse response) {
         try {
             if (response == null) {
-                throw new RuntimeException("No response from server on buildObjectToSave");
+                throw new RuntimeException(
+                        "No response from server on buildObjectToSave");
             }
 
             if (response.data() == null && response.responseInfo() != null) {
@@ -377,8 +390,7 @@ public class FormProfile extends BaseForm<ProfileRequest> {
             objectToSave = ProfileRequest.builder().id(response.data().id())
                     .name(response.data().name())
                     .description(response.data().description())
-                    .permits(response.data().permits())
-                    .build();
+                    .permits(response.data().permits()).build();
 
             details = objectToSave.permits();
             grid.setItems(details);

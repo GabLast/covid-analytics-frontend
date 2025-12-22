@@ -18,6 +18,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -57,10 +58,11 @@ public class FormUser extends BaseForm<UserRequest> {
     private List<ProfileRow> detailsDelete;
 
     //details
-    private Grid<ProfileRow>                       grid;
-    private CheckboxGroup<ProfileFetchDataDetails> profilesCheck;
-    private Button                                 btnAdd;
-    private FormLayout                             detailForm;
+    private Grid<ProfileRow>                             grid;
+    private CheckboxGroup<ProfileFetchDataDetails>       profilesCheck;
+    private MultiSelectComboBox<ProfileFetchDataDetails> profilesCombo;
+    private Button                                       btnAdd;
+    private FormLayout                                   detailForm;
 
     public FormUser(CovidAnalyticsService service, SecurityUtils securityUtils) {
         super(BaseForm.TYPE_TABS_AS_DETAILS);
@@ -85,7 +87,8 @@ public class FormUser extends BaseForm<UserRequest> {
                 throw new RuntimeException(response.responseInfo().message());
             }
 
-            profilesCheck.setItems(response.data().profiles());
+            //            profilesCheck.setItems(response.data().profiles());
+            profilesCombo.setItems(response.data().profiles());
         } catch (Exception e) {
             new ErrorNotification(e.getMessage());
         }
@@ -202,12 +205,19 @@ public class FormUser extends BaseForm<UserRequest> {
     private Component buildDetails() {
         configGrid();
 
+        VerticalLayout aux = new VerticalLayout();
+        aux.setMargin(false);
+        aux.setPadding(false);
+        aux.setSpacing(true);
+        aux.setMaxWidth("30%");
+        aux.add(buildDetailsForm());
+
         HorizontalLayout hl = new HorizontalLayout();
         hl.setSizeFull();
         hl.setSpacing(true);
         hl.setPadding(false);
         hl.setMargin(false);
-        hl.add(buildDetailsForm());
+        hl.add(aux);
         hl.add(grid);
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -224,7 +234,8 @@ public class FormUser extends BaseForm<UserRequest> {
         btnAdd = new Button("Add");
         btnAdd.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         btnAdd.addClickListener(event -> {
-            Set<ProfileFetchDataDetails> items = profilesCheck.getSelectedItems();
+            //            Set<ProfileFetchDataDetails> items = profilesCheck.getSelectedItems();
+            Set<ProfileFetchDataDetails> items = profilesCombo.getSelectedItems();
             for (ProfileFetchDataDetails item : items) {
                 if (details.stream().noneMatch(it -> it.id().equals(item.id()))) {
                     details.add(ProfileRow.builder().id(item.id()).profile(item.name())
@@ -232,24 +243,31 @@ public class FormUser extends BaseForm<UserRequest> {
                 }
             }
             grid.setItems(details);
-            profilesCheck.clear();
+            //            profilesCheck.clear();
+            profilesCombo.clear();
         });
 
-        profilesCheck = new CheckboxGroup<>("Profiles");
-        profilesCheck.setRequired(true);
-        profilesCheck.setRequiredIndicatorVisible(true);
-        profilesCheck.setItemLabelGenerator(ProfileFetchDataDetails::name);
+//        profilesCheck = new CheckboxGroup<>("Profiles");
+//        profilesCheck.setRequired(true);
+//        profilesCheck.setRequiredIndicatorVisible(true);
+//        profilesCheck.setItemLabelGenerator(ProfileFetchDataDetails::name);
+
+        profilesCombo = new MultiSelectComboBox<>();
+        profilesCombo.setLabel("Profiles");
+        profilesCombo.setRequired(false);
+        profilesCombo.setErrorMessage("Fill the required fields");
+        profilesCombo.setItemLabelGenerator(ProfileFetchDataDetails::name);
 
         detailForm = new FormLayout();
-        detailForm.setMinWidth("50%");
-        detailForm.setMaxWidth("50%");
+        detailForm.setSizeFull();
         detailForm.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 3));
 
-        detailForm.add(profilesCheck, 1);
-        detailForm.add(btnAdd, 1);
+//        detailForm.add(profilesCheck, 1);
+        detailForm.add(profilesCombo, 4);
+        detailForm.add(btnAdd, 4);
         return detailForm;
     }
 
@@ -260,8 +278,6 @@ public class FormUser extends BaseForm<UserRequest> {
         grid.setSizeFull();
         grid.setSelectionMode(Grid.SelectionMode.NONE);
         grid.setColumnReorderingAllowed(false);
-        grid.addColumn(ProfileRow::profile).setHeader("Profile").setWidth("200px")
-                .setFlexGrow(1).setResizable(true).setSortable(false);
         grid.addComponentColumn(it -> {
                     Button btnDelete = new Button(new Icon(VaadinIcon.TRASH));
                     btnDelete.setEnabled(!view);
@@ -282,6 +298,8 @@ public class FormUser extends BaseForm<UserRequest> {
                     return btnDelete;
                 }).setHeader("").setKey("action").setResizable(true).setFlexGrow(0)
                 .setWidth("75px");
+        grid.addColumn(ProfileRow::profile).setHeader("Profile").setWidth("200px")
+                .setFlexGrow(1).setResizable(true).setSortable(false);
     }
 
     @Override
@@ -294,7 +312,8 @@ public class FormUser extends BaseForm<UserRequest> {
         btnSave.setEnabled(false);
 
         detailForm.setVisible(false);
-        profilesCheck.setEnabled(false);
+//        profilesCheck.setEnabled(false);
+        profilesCombo.setEnabled(false);
         btnAdd.setVisible(false);
     }
 
@@ -375,10 +394,10 @@ public class FormUser extends BaseForm<UserRequest> {
 
             UserResponse response = service.postUser(UserRequest.builder()
                     .id(responseGet != null ? responseGet.data().id() : null)
-                    .username(tfUsername.getValue().trim()).email(tfEmail.getValue().trim())
-                    .name(tfName.getValue().trim()).password(tfPassword.getValue())
-                    .admin(checkAdmin.getValue()).profiles(details)
-                    .profilesDelete(detailsDelete).build());
+                    .username(tfUsername.getValue().trim())
+                    .email(tfEmail.getValue().trim()).name(tfName.getValue().trim())
+                    .password(tfPassword.getValue()).admin(checkAdmin.getValue())
+                    .profiles(details).profilesDelete(detailsDelete).build());
 
             if (response == null) {
                 throw new RuntimeException("No response from server for postUser");
