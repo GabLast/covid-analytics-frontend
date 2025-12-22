@@ -1,15 +1,17 @@
-package com.myorg.views.forms;
+package com.myorg.views.forms.configuration;
 
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.dto.request.configurations.UserSettingRequest;
+import com.myorg.dto.response.configuration.UserSettingResponse;
 import com.myorg.encapsulations.User;
+import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
+import com.myorg.utils.GlobalConstants;
 import com.myorg.views.generics.dialog.ConfirmWindow;
 import com.myorg.views.generics.notifications.ErrorNotification;
 import com.myorg.views.generics.notifications.SuccessNotification;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ModalityMode;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static java.util.Locale.ENGLISH;
 
 public class FormUserSetting extends Dialog {
 
@@ -38,20 +41,23 @@ public class FormUserSetting extends Dialog {
     private ComboBox<String> cbTimeZone;
     private ComboBox<String> cbDateFormat;
     private ComboBox<String> cbDateTimeFormat;
-    private Checkbox checkDarkMode;
+    private Checkbox         checkDarkMode;
 
-    protected Callback callback;
-    protected User user;
-    protected UserSettingRequest objectToSave;
+    protected Callback            callback;
+    protected User                user;
+    protected UserSetting         objectToSave;
+    private   UserSettingResponse responseGet;
 
     public interface Callback {
-        void run(UserSettingRequest userSetting);
+        void run(UserSetting userSetting);
     }
 
     public FormUserSetting(CovidAnalyticsService service, Callback callback) {
         this.service = service;
-        this.user = (User) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USER.toString());
-        this.objectToSave = (UserSettingRequest) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
+        this.user = (User) VaadinSession.getCurrent()
+                .getAttribute(MyVaadinSession.SessionVariables.USER.toString());
+        this.objectToSave = (UserSetting) VaadinSession.getCurrent()
+                .getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
         this.callback = callback;
 
         setMinWidth("30%");
@@ -70,24 +76,29 @@ public class FormUserSetting extends Dialog {
 
     private void setComponentValues() {
         cbTimeZone.setItems(TimeZone.getAvailableIDs());
+        cbTimeZone.setValue(GlobalConstants.DEFAULT_TIMEZONE);
 
-        cbDateFormat.setItems(List.of(
-                "dd/MM/yy",
-                "MM/dd/yy",
-                "d/M/yy",
-                "M/d/yy"
-        ));
+        cbLocale.setItems(List.of(ENGLISH));
+        cbLocale.setItemLabelGenerator(it -> {
+            if (it == ENGLISH) {
+                return "English";
+            } else {
+                return "empty";
+            }
+        });
+        cbLocale.setValue(ENGLISH);
 
-        cbDateTimeFormat.setItems(List.of(
-                "dd/MM/yy hh:mm a",
-                "dd/MM/yy hh:mm",
-                "MM/dd/yy hh:mm a",
-                "MM/dd/yy hh:mm",
-                "d/M/yy hh:mm a",
-                "d/M/yy hh:mm",
-                "M/d/yy hh:mm a",
-                "M/d/yy hh:mm"
-        ));
+        cbDateFormat.setItems(List.of("dd/MM/yyyy", "d/M/yyyy", "M/d/yyyy",
+                "MM/dd/yyyy"));
+        cbDateFormat.setValue("dd/MM/yyyy");
+
+        cbDateTimeFormat.setItems(
+                List.of("dd/MM/yy hh:mm a", "dd/MM/yy hh:mm", "MM/dd/yy hh:mm a",
+                        "MM/dd/yy hh:mm", "d/M/yy hh:mm a", "d/M/yy hh:mm",
+                        "M/d/yy hh:mm a", "M/d/yy hh:mm"));
+        cbDateTimeFormat.setValue("dd/MM/yy hh:mm a");
+
+        checkDarkMode.setValue(false);
     }
 
     private Component buildSeparation() {
@@ -106,8 +117,7 @@ public class FormUserSetting extends Dialog {
         btnSave = new Button("Save", new Icon(VaadinIcon.CHECK));
         btnSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         btnSave.addClickListener(buttonClickEvent -> {
-            ConfirmWindow confirmWindow =
-                    new ConfirmWindow(this::save);
+            ConfirmWindow confirmWindow = new ConfirmWindow(this::save);
             confirmWindow.open();
         });
 
@@ -124,8 +134,7 @@ public class FormUserSetting extends Dialog {
 
         formLayout = new FormLayout();
         formLayout.setSizeUndefined();
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
+        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 4));
@@ -155,48 +164,73 @@ public class FormUserSetting extends Dialog {
         cbTimeZone.setErrorMessage("Fill the required fields");
         cbTimeZone.setSizeFull();
 
-        checkDarkMode = new Checkbox("Dark Mode");
+        cbLocale = new ComboBox<>();
+        cbLocale.setLabel("Locale");
+        cbLocale.setRequiredIndicatorVisible(true);
+        cbLocale.setErrorMessage("Fill the required fields");
+        cbLocale.setSizeFull();
 
-        formLayout.add(cbTimeZone);
+        checkDarkMode = new Checkbox("Dark Mode");
+        checkDarkMode.setVisible(false);
+
+        formLayout.add(cbTimeZone, cbLocale);
         formLayout.add(cbDateFormat, cbDateTimeFormat);
         formLayout.add(checkDarkMode);
     }
 
     private void fillFields() {
-        if (objectToSave != null) {
-//            cbDateFormat.setValue(objectToSave.getDateFormat());
-//            cbDateTimeFormat.setValue(objectToSave.getDateTimeFormat());
-//            cbTimeZone.setValue(objectToSave.getTimeZoneString());
-//            checkDarkMode.setValue(objectToSave.isDarkMode());
-//            cbLocale.setValue(objectToSave.getLocale());
+        try {
+
+            responseGet = service.getRequestUserSetting();
+
+            if (responseGet == null) {
+                throw new RuntimeException("No response from server");
+            }
+
+            if (responseGet.data() == null && responseGet.responseInfo() != null) {
+                throw new RuntimeException(responseGet.responseInfo().message());
+            }
+
+            cbLocale.setValue(Locale.forLanguageTag(responseGet.data().language()));
+            cbTimeZone.setValue(responseGet.data().timeZoneString());
+            cbDateFormat.setValue(responseGet.data().dateFormat());
+            cbDateTimeFormat.setValue(responseGet.data().dateTimeFormat());
+            checkDarkMode.setValue(responseGet.data().darkMode());
+
+        } catch (Exception e) {
+            new ErrorNotification(e.getMessage());
         }
     }
 
     private boolean verifyFields() {
         boolean isError = false;
 
-        if (cbLocale.isRequiredIndicatorVisible() && (cbLocale.getValue() == null || cbLocale.isInvalid())) {
+        if (cbLocale.isRequiredIndicatorVisible() && (cbLocale.getValue() == null
+                || cbLocale.isInvalid())) {
             isError = true;
             cbLocale.setInvalid(true);
         } else {
             cbLocale.setInvalid(false);
         }
 
-        if (cbTimeZone.isRequiredIndicatorVisible() && (cbTimeZone.getValue() == null || cbTimeZone.isInvalid())) {
+        if (cbTimeZone.isRequiredIndicatorVisible() && (cbTimeZone.getValue() == null
+                || cbTimeZone.isInvalid())) {
             isError = true;
             cbTimeZone.setInvalid(true);
         } else {
             cbTimeZone.setInvalid(false);
         }
 
-        if (cbDateFormat.isRequiredIndicatorVisible() && (cbDateFormat.getValue() == null || cbDateFormat.isInvalid())) {
+        if (cbDateFormat.isRequiredIndicatorVisible() && (cbDateFormat.getValue() == null
+                || cbDateFormat.isInvalid())) {
             isError = true;
             cbDateFormat.setInvalid(true);
         } else {
             cbDateFormat.setInvalid(false);
         }
 
-        if (cbDateTimeFormat.isRequiredIndicatorVisible() && (cbDateTimeFormat.getValue() == null || cbDateTimeFormat.isInvalid())) {
+        if (cbDateTimeFormat.isRequiredIndicatorVisible() && (
+                cbDateTimeFormat.getValue() == null || cbDateTimeFormat.isInvalid())) {
             isError = true;
             cbDateTimeFormat.setInvalid(true);
         } else {
@@ -215,21 +249,31 @@ public class FormUserSetting extends Dialog {
 
     private void save() {
 
+        if (verifyFields()) {
+            return;
+        }
+
         try {
 
-            if (verifyFields()) {
-                return;
+            UserSettingResponse response = service.postUserSetting(
+                    UserSettingRequest.builder()
+                            .id(responseGet != null ? responseGet.data().id()
+                                                    : null)
+                            .darkMode(checkDarkMode.getValue())
+                            .dateFormat(cbDateFormat.getValue())
+                            .dateTimeFormat(cbDateTimeFormat.getValue())
+                            .timeZoneString(cbTimeZone.getValue())
+                            .language(cbLocale.getValue().getLanguage()).build());
+
+            if (response == null) {
+                throw new RuntimeException("No response from server");
             }
 
-//            objectToSave.setUser(user);
-//            objectToSave.setTimeZoneString(cbTimeZone.getValue());
-//            objectToSave.setDateFormat(cbDateFormat.getValue());
-//            objectToSave.setDateTimeFormat(cbDateTimeFormat.getValue());
-//            objectToSave.setDarkMode(checkDarkMode.getValue());
-//            objectToSave.setLanguage(cbLocale.getValue().getLanguage());
-//            objectToSave = userSettingService.saveAndFlush(objectToSave);
+            if (response.data() == null && response.responseInfo() != null) {
+                throw new RuntimeException(response.responseInfo().message());
+            }
 
-            new SuccessNotification(UI.getCurrent().getTranslation("action.save"));
+            new SuccessNotification("The data has been successfully saved");
 
             callback.run(objectToSave);
 

@@ -1,4 +1,4 @@
-package com.myorg.views.forms;
+package com.myorg.views.forms.process;
 
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
 import com.myorg.dto.request.process.CovidLoadRequest;
@@ -224,7 +224,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
 
         FormLayout form = new FormLayout();
         form.setSizeUndefined();
-        form.setResponsiveSteps(new FormLayout.ResponsiveStep("1px", 1),
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 4));
@@ -428,7 +428,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
 
         try {
 
-            CovidLoadResponse response = service.loadData(CovidLoadRequest.builder()
+            CovidLoadResponse response = service.postCovidLoad(CovidLoadRequest.builder()
                             .id(responseGet != null ? responseGet.data().headerId() : null)
                             .date(dpDate.getValue()).description(tfDescription.getValue().trim())
                             .jsonString(tfJson.getValue()).jsonURL(tfJsonURL.getValue()).build(),
@@ -489,7 +489,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
             return;
         }
 
-        responseGet = service.getHeaderData(headerId);
+        responseGet = service.getCovidLoad(headerId);
         if (responseGet == null) {
             event.getUI().getPage().getHistory().back();
             return;

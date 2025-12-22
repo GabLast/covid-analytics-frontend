@@ -4,10 +4,12 @@ import com.myorg.config.AppInfo;
 import com.myorg.config.security.AuthenticatedUser;
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.dto.request.security.LoginRequest;
+import com.myorg.dto.response.configuration.UserSettingResponse;
 import com.myorg.dto.response.security.LoginResponse;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
+import com.myorg.utils.GlobalConstants;
 import com.myorg.views.general.HomeView;
 import com.myorg.views.generics.notifications.ErrorNotification;
 import com.vaadin.flow.component.Key;
@@ -125,20 +127,36 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
                     && response.responseInfo() != null) {
                 throw new RuntimeException(response.responseInfo().message());
             }
-
             User user = User.builder()
                     .token(response.data().token())
                     .name(response.data().name())
                     .grantedAuthorities(response.data().grantedAuthorities())
                     .build();
-
-            UserSetting userSetting = UserSetting.builder()
-                    .darkMode(false)
-                    .language("en")
-                    .dateFormat("dd/MM/yyyy")
-                    .build();
-
             UI.getCurrent().getSession().setAttribute(MyVaadinSession.SessionVariables.USER.toString(), user);
+
+
+            UserSettingResponse settingResponse = service.getRequestUserSetting();
+            UserSetting userSetting;
+            if (settingResponse == null || settingResponse.data() == null) {
+                userSetting = UserSetting.builder()
+                        .id(0L)
+                        .darkMode(false)
+                        .language("en")
+                        .dateFormat("dd/MM/yyyy")
+                        .dateTimeFormat("dd/MM/yyyy hh:mm a")
+                        .timeZoneString(GlobalConstants.DEFAULT_TIMEZONE)
+                        .build();
+            } else {
+                userSetting = UserSetting.builder()
+                        .id(settingResponse.data().id())
+                        .darkMode(settingResponse.data().darkMode())
+                        .language(settingResponse.data().language())
+                        .dateFormat(settingResponse.data().dateFormat())
+                        .dateTimeFormat(settingResponse.data().dateTimeFormat())
+                        .timeZoneString(settingResponse.data().timeZoneString())
+                        .build();
+            }
+
             UI.getCurrent().getSession().setAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString(), userSetting);
 
             UI.getCurrent().navigate(HomeView.class);

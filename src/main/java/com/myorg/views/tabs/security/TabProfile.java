@@ -1,10 +1,9 @@
-package com.myorg.views.tabs.process;
+package com.myorg.views.tabs.security;
 
 import com.myorg.config.security.MyVaadinSession;
-import com.myorg.dto.request.process.CovidHeaderFilterRequest;
-import com.myorg.dto.response.process.CovidHeaderFilterDataDetails;
-import com.myorg.dto.response.process.CovidLoadResponse;
-import com.myorg.dto.response.security.UserFindAllDataDetails;
+import com.myorg.dto.request.security.ProfileFilterRequest;
+import com.myorg.dto.response.security.ProfileFilterDataDetails;
+import com.myorg.dto.response.security.ProfileResponse;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
@@ -12,7 +11,7 @@ import com.myorg.utils.PermitConstants;
 import com.myorg.utils.SecurityUtils;
 import com.myorg.utils.Utilities;
 import com.myorg.views.MainLayout;
-import com.myorg.views.forms.process.FormLoadCovidData;
+import com.myorg.views.forms.security.FormProfile;
 import com.myorg.views.generics.dialog.ConfirmWindow;
 import com.myorg.views.generics.notifications.ErrorNotification;
 import com.myorg.views.generics.notifications.SuccessNotification;
@@ -56,16 +55,14 @@ import com.vaadin.flow.shared.Registration;
 import org.vaadin.crudui.crud.LazyCrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import java.util.List;
 import java.util.Optional;
 
-@Route(value = "process/covidheader", layout = MainLayout.class)
-public class TabCovidHeader extends Div
+@Route(value = "security/profile", layout = MainLayout.class)
+public class TabProfile extends Div
         implements AfterNavigationObserver, HasDynamicTitle {
 
     private final User        user;
     private final UserSetting userSetting;
-    private DatePicker.DatePickerI18n datePickerFormat = new DatePicker.DatePickerI18n();
 
     private final CovidAnalyticsService service;
     private final SecurityUtils         securityUtils;
@@ -73,25 +70,23 @@ public class TabCovidHeader extends Div
 
     //filters
     private FormLayout                     form;
+    private TextField                      nameFilter;
     private TextField                      descriptionFilter;
     private Select<String>                 enabledFilter;
-    private Select<UserFindAllDataDetails> userFilter;
-    private DatePicker                     startFilter, endFilter;
 
-    private GridCrud<CovidHeaderFilterDataDetails> gridCrud;
+    private GridCrud<ProfileFilterDataDetails> gridCrud;
     //Selected Object
-    private CovidHeaderFilterDataDetails           object = null;
+    private ProfileFilterDataDetails       object = null;
 
     private Registration broadcaster;
 
-    public TabCovidHeader(CovidAnalyticsService service, SecurityUtils securityUtils) {
+    public TabProfile(CovidAnalyticsService service, SecurityUtils securityUtils) {
         this.user = (User) VaadinSession.getCurrent()
                 .getAttribute(MyVaadinSession.SessionVariables.USER.toString());
         this.userSetting = (UserSetting) VaadinSession.getCurrent()
                 .getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
         this.service = service;
         this.securityUtils = securityUtils;
-        this.datePickerFormat.setDateFormat(userSetting.dateFormat());
 
         prepareComponents();
     }
@@ -114,24 +109,16 @@ public class TabCovidHeader extends Div
     }
 
     private Component configFilters() {
+
+        nameFilter = new TextField("Name");
+        nameFilter.setClearButtonVisible(true);
+        nameFilter.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        nameFilter.addValueChangeListener(e -> refreshData());
+
         descriptionFilter = new TextField("Description");
         descriptionFilter.setClearButtonVisible(true);
         descriptionFilter.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         descriptionFilter.addValueChangeListener(e -> refreshData());
-
-        startFilter = new DatePicker("Start");
-        startFilter.setI18n(datePickerFormat);
-        startFilter.setWidthFull();
-        startFilter.setClearButtonVisible(true);
-        startFilter.getElement().setAttribute("theme", "small");
-        startFilter.addValueChangeListener(e -> refreshData());
-
-        endFilter = new DatePicker("End");
-        endFilter.setI18n(datePickerFormat);
-        endFilter.setWidthFull();
-        endFilter.setClearButtonVisible(true);
-        endFilter.getElement().setAttribute("theme", "small");
-        endFilter.addValueChangeListener(e -> refreshData());
 
         enabledFilter = new Select<>();
         enabledFilter.setLabel("Enabled");
@@ -141,19 +128,6 @@ public class TabCovidHeader extends Div
         enabledFilter.setEmptySelectionCaption("All");
         enabledFilter.getElement().setAttribute("theme", "small");
         enabledFilter.addValueChangeListener(e -> refreshData());
-
-        userFilter = new Select<>();
-        userFilter.setLabel("User");
-        List<UserFindAllDataDetails> items =
-                service.getUsers() != null && service.getUsers().data() != null ? service
-                        .getUsers().data().dataList() : null;
-        if (items != null) {
-            userFilter.setItems(items);
-        }
-        userFilter.setEmptySelectionAllowed(true);
-        userFilter.setEmptySelectionCaption("All");
-        userFilter.getElement().setAttribute("theme", "small");
-        userFilter.addValueChangeListener(e -> refreshData());
 
         Accordion accordion = new Accordion();
         accordion.setWidthFull();
@@ -179,17 +153,17 @@ public class TabCovidHeader extends Div
         form.add(btnClearFilter, 1);
         form.add(new Div(), 4);
 
-        form.add(userFilter, descriptionFilter, enabledFilter, startFilter, endFilter);
+        form.add(nameFilter, descriptionFilter, enabledFilter);
 
         return form;
     }
 
     private void applySecurity() {
         miRefresh.setVisible(true);
-        miCreate.setVisible(securityUtils.isAccessGranted(PermitConstants.LOAD_COVID_DATA_CREATE));
-        miEdit.setVisible(securityUtils.isAccessGranted(PermitConstants.LOAD_COVID_DATA_EDIT));
-        miView.setVisible(securityUtils.isAccessGranted(PermitConstants.LOAD_COVID_DATA_VIEW));
-        miDelete.setVisible(securityUtils.isAccessGranted(PermitConstants.LOAD_COVID_DATA_DELETE));
+        miCreate.setVisible(securityUtils.isAccessGranted(PermitConstants.PROFILE_CREATE));
+        miEdit.setVisible(securityUtils.isAccessGranted(PermitConstants.PROFILE_EDIT));
+        miView.setVisible(securityUtils.isAccessGranted(PermitConstants.PROFILE_VIEW));
+        miDelete.setVisible(securityUtils.isAccessGranted(PermitConstants.PROFILE_DELETE));
     }
 
     private Component configButtons() {
@@ -217,14 +191,14 @@ public class TabCovidHeader extends Div
         miRefresh = toolBar.addItem(gridCrud.getFindAllButton());
 
         miCreate = toolBar.addItem(btnCreate,
-                e -> UI.getCurrent().navigate(FormLoadCovidData.class));
+                e -> UI.getCurrent().navigate(FormProfile.class));
 
         miEdit = toolBar.addItem(btnEdit, e -> {
             RouteParameters parameters =
                     new RouteParameters(new RouteParam("id", object.id().toString()),
                             new RouteParam("view", "0"));
 
-            UI.getCurrent().navigate(FormLoadCovidData.class, parameters);
+            UI.getCurrent().navigate(FormProfile.class, parameters);
         });
 
         miView = toolBar.addItem(btnView, e -> {
@@ -232,7 +206,7 @@ public class TabCovidHeader extends Div
                     new RouteParameters(new RouteParam("id", object.id().toString()),
                             new RouteParam("view", "1"));
 
-            UI.getCurrent().navigate(FormLoadCovidData.class, parameters);
+            UI.getCurrent().navigate(FormProfile.class, parameters);
         });
 
         miDelete = toolBar.addItem(btnDelete, e -> {
@@ -246,9 +220,9 @@ public class TabCovidHeader extends Div
     }
 
     private void configGrid() {
-        gridCrud = new GridCrud<>(CovidHeaderFilterDataDetails.class);
+        gridCrud = new GridCrud<>(ProfileFilterDataDetails.class);
 
-        Grid<CovidHeaderFilterDataDetails> grid = gridCrud.getGrid();
+        Grid<ProfileFilterDataDetails> grid = gridCrud.getGrid();
         grid.removeAllColumns();
 
         grid.setSizeFull();
@@ -259,20 +233,17 @@ public class TabCovidHeader extends Div
         grid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_COLUMN_BORDERS,
                 GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
 
-        grid.addColumn(CovidHeaderFilterDataDetails::id).setKey("id").setHeader("ID")
+        grid.addColumn(ProfileFilterDataDetails::id).setKey("id").setHeader("ID")
                 .setSortable(true).setResizable(true).setFlexGrow(1);
-        grid.addColumn(CovidHeaderFilterDataDetails::loadDate).setKey("loadedDate")
-                .setHeader("Load Date").setSortable(true).setResizable(true)
+        grid.addColumn(ProfileFilterDataDetails::name).setKey("name")
+                .setHeader("Name").setSortable(true).setResizable(true)
                 .setFlexGrow(1);
-        grid.addColumn(CovidHeaderFilterDataDetails::userName).setKey("userId")
-                .setHeader("Loaded By").setSortable(false).setResizable(true)
-                .setFlexGrow(1);
-        grid.addColumn(CovidHeaderFilterDataDetails::description).setKey("description")
+        grid.addColumn(ProfileFilterDataDetails::description).setKey("description")
                 .setHeader("Description").setSortable(false).setResizable(true)
                 .setFlexGrow(1);
 
         grid.addSelectionListener(selectionEvent -> {
-            Optional<CovidHeaderFilterDataDetails> firstSelectedItem =
+            Optional<ProfileFilterDataDetails> firstSelectedItem =
                     selectionEvent.getFirstSelectedItem();
             if (firstSelectedItem.isPresent()) {
                 object = firstSelectedItem.get();
@@ -286,38 +257,34 @@ public class TabCovidHeader extends Div
         gridCrud.refreshGrid();
     }
 
-    private LazyCrudListener<CovidHeaderFilterDataDetails> configDataSource() {
+    private LazyCrudListener<ProfileFilterDataDetails> configDataSource() {
         try {
             return new LazyCrudListener<>() {
                 @Override
-                public CovidHeaderFilterDataDetails add(
-                        CovidHeaderFilterDataDetails covidHeaderFilterDataDetails) {
+                public ProfileFilterDataDetails add(
+                        ProfileFilterDataDetails covidHeaderFilterDataDetails) {
                     return null;
                 }
 
                 @Override
-                public CovidHeaderFilterDataDetails update(
-                        CovidHeaderFilterDataDetails covidHeaderFilterDataDetails) {
+                public ProfileFilterDataDetails update(
+                        ProfileFilterDataDetails covidHeaderFilterDataDetails) {
                     return null;
                 }
 
                 @Override
                 public void delete(
-                        CovidHeaderFilterDataDetails covidHeaderFilterDataDetails) {
+                        ProfileFilterDataDetails covidHeaderFilterDataDetails) {
                 }
 
                 @Override
-                public DataProvider<CovidHeaderFilterDataDetails, ?> getDataProvider() {
-                    CovidHeaderFilterRequest request = new CovidHeaderFilterRequest();
+                public DataProvider<ProfileFilterDataDetails, ?> getDataProvider() {
+                    ProfileFilterRequest request = new ProfileFilterRequest();
+                    request.setName(nameFilter.getValue().trim());
                     request.setDescription(descriptionFilter.getValue().trim());
                     request.setEnabled(
                             enabledFilter.getValue() != null && enabledFilter.getValue()
                                     .equalsIgnoreCase("yes"));
-                    request.setUserId(
-                            userFilter.getValue() != null ? userFilter.getValue().id()
-                                                          : null);
-                    request.setDateStart(startFilter.getValue());
-                    request.setDateEnd(endFilter.getValue());
 
                     return DataProvider.fromCallbacks(query -> {
                         request.setLimit(query.getLimit());
@@ -330,9 +297,9 @@ public class TabCovidHeader extends Div
                             request.setSortOrder(sort.get().getDirection().getShortName());
                         }
 
-                        return service.findAllHeaderFilter(request).data().dataList()
+                        return service.filterProfiles(request).data().dataList()
                                 .stream();
-                    }, query -> service.countAllHeaderFilter(request).data().total());
+                    }, query -> service.countProfilesFilter(request).data().total());
                 }
             };
         } catch (Exception e) {
@@ -349,7 +316,7 @@ public class TabCovidHeader extends Div
 
         try {
 
-            CovidLoadResponse response = service.deleteCovidLoad(object.id());
+            ProfileResponse response = service.deleteProfile(object.id());
 
             if (response == null) {
                 throw new RuntimeException("No response from server");
@@ -422,6 +389,6 @@ public class TabCovidHeader extends Div
 
     @Override
     public String getPageTitle() {
-        return "Covid Data Load";
+        return "Profiles";
     }
 }

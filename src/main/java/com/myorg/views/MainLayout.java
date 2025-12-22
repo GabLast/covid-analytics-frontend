@@ -9,11 +9,16 @@ import com.myorg.service.CovidAnalyticsService;
 import com.myorg.utils.PermitConstants;
 import com.myorg.utils.SecurityUtils;
 import com.myorg.views.authentication.LoginView;
+import com.myorg.views.forms.configuration.FormUserSetting;
 import com.myorg.views.general.AboutView;
 import com.myorg.views.general.HomeView;
-import com.myorg.views.generics.navigation.MySideNavItem;
 import com.myorg.views.general.TabDashboard;
+import com.myorg.views.generics.navigation.MySideNavItem;
+import com.myorg.views.generics.notifications.ErrorNotification;
+import com.myorg.views.generics.notifications.WarningNotification;
 import com.myorg.views.tabs.process.TabCovidHeader;
+import com.myorg.views.tabs.security.TabProfile;
+import com.myorg.views.tabs.security.TabUser;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -32,6 +37,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -44,8 +50,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout implements AfterNavigationObserver
-        ,BeforeEnterObserver {
+public class MainLayout extends AppLayout
+        implements AfterNavigationObserver, BeforeEnterObserver {
 
     private final AppInfo               appInfo;
     private final AuthenticatedUser     authenticatedUser;
@@ -101,9 +107,9 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
         Div div = new Div();
 
         SideNav dashboard = new SideNav();
-        dashboard.addItem(
-                new MySideNavItem("Dashboard", TabDashboard.class, VaadinIcon.DASHBOARD.create(),
-                        securityUtils.isAccessGranted(PermitConstants.DASHBOARD)));
+        dashboard.addItem(new MySideNavItem("Dashboard", TabDashboard.class,
+                VaadinIcon.DASHBOARD.create(),
+                securityUtils.isAccessGranted(PermitConstants.DASHBOARD)));
         div.add(dashboard);
 
         //***************************************************************
@@ -112,11 +118,11 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
         processesModule.setCollapsible(true);
         processesModule.setExpanded(true);
         processesModule.setLabel("Processes");
-        processesModule.setVisible(securityUtils.isAccessGranted(PermitConstants.PROCESSES_MODULE));
-        processesModule.addItem(
-                new MySideNavItem("Covid Data Load",
-                        TabCovidHeader.class, VaadinIcon.FILE.create(),
-                        securityUtils.isAccessGranted(PermitConstants.MENU_LOAD_COVID_DATA)));
+        processesModule.setVisible(
+                securityUtils.isAccessGranted(PermitConstants.PROCESSES_MODULE));
+        processesModule.addItem(new MySideNavItem("Covid Data Load", TabCovidHeader.class,
+                VaadinIcon.FILE.create(),
+                securityUtils.isAccessGranted(PermitConstants.MENU_LOAD_COVID_DATA)));
         div.add(processesModule);
 
         //***************************************************************
@@ -124,11 +130,14 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
         SideNav securityModule = new SideNav("Security");
         securityModule.setCollapsible(true);
         securityModule.setExpanded(false);
-        //        securityModule.setVisible(securityUtils.isAccessGranted("PROCESSES_MODULE"));
-        //        securityModule.addItem(
-        //                new MySideNavItem("Load Covid Data",
-        //                        VerticalLayout.class, VaadinIcon.PAPERCLIP.create(),
-        //                        securityUtils.isAccessGranted("PROCESSES_MODULE")));
+        securityModule.setVisible(
+                securityUtils.isAccessGranted(PermitConstants.SECURITY_MODULE));
+        securityModule.addItem(new MySideNavItem("Profiles", TabProfile.class,
+                VaadinIcon.USER_CARD.create(),
+                securityUtils.isAccessGranted(PermitConstants.MENU_PROFILE)));
+        securityModule.addItem(new MySideNavItem("Users", TabUser.class,
+                VaadinIcon.USERS.create(),
+                securityUtils.isAccessGranted(PermitConstants.MENU_USER)));
         div.add(securityModule);
 
         //***************************************************************
@@ -172,28 +181,29 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
             div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
             menu.add(div);
 
-//            menu.getSubMenu().addItem("Settings", event -> {
-//                new FormUserSetting(service, userSetting -> {
-//                    UI.getCurrent().getPage().reload();
-//                    try {
-//                        if (userSetting != null) {
-//                            UI.getCurrent().getSession().setAttribute(
-//                                    MyVaadinSession.SessionVariables.USERSETTINGS.toString(),
-//                                    userSetting);
-//                            UI.getCurrent().getPage().reload();
-//                            this.settings = (UserSetting) VaadinSession.getCurrent()
-//                                    .getAttribute(
-//                                            MyVaadinSession.SessionVariables.USERSETTINGS.toString());
-//                        }
-//                    } catch (Exception e) {
-//                        new ErrorNotification(e.getMessage());
-//                    }
-//
-//                });
-//            });
+            menu.getSubMenu().addItem("Settings", event -> {
+                new FormUserSetting(service, userSetting -> {
+                    UI.getCurrent().getPage().reload();
+                    try {
+                        if (userSetting != null) {
+                            UI.getCurrent().getSession().setAttribute(
+                                    MyVaadinSession.SessionVariables.USERSETTINGS.toString(),
+                                    userSetting);
+                            UI.getCurrent().getPage().reload();
+                            this.settings = (UserSetting) VaadinSession.getCurrent()
+                                    .getAttribute(
+                                            MyVaadinSession.SessionVariables.USERSETTINGS.toString());
+                        }
+                    } catch (Exception e) {
+                        new ErrorNotification(e.getMessage());
+                    }
+
+                });
+            });
 
             menu.getSubMenu().addItem("Sign Out", e -> {
                 authenticatedUser.logout();
+                new WarningNotification("Signed out");
             });
             menu.getSubMenu().getItems().getLast().getStyle().set("color", "#de3b3b");
 
@@ -206,9 +216,12 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver
     }
 
     private void setTheme(boolean dark) {
-        var js = "document.documentElement.setAttribute('theme', $0)";
-
-        getElement().executeJs(js, dark ? Lumo.DARK : Lumo.LIGHT);
+        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+        if (dark) {
+            themeList.add(Lumo.DARK);
+        } else {
+            themeList.remove(Lumo.DARK);
+        }
     }
 
     @Override

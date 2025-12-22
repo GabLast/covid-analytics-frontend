@@ -2,21 +2,32 @@ package com.myorg.service.impl;
 
 import com.myorg.config.AppInfo;
 import com.myorg.config.security.MyVaadinSession;
+import com.myorg.dto.request.configurations.UserSettingRequest;
 import com.myorg.dto.request.dashboard.DashboardTwoFilterRequest;
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
 import com.myorg.dto.request.process.CovidHeaderFilterRequest;
 import com.myorg.dto.request.process.CovidLoadRequest;
 import com.myorg.dto.request.security.LoginRequest;
+import com.myorg.dto.request.security.ProfileFilterRequest;
+import com.myorg.dto.request.security.ProfileRequest;
+import com.myorg.dto.request.security.UserFilterRequest;
+import com.myorg.dto.request.security.UserRequest;
 import com.myorg.dto.response.CountResponse;
 import com.myorg.dto.response.configuration.CountryFindAllResponse;
+import com.myorg.dto.response.configuration.UserSettingResponse;
 import com.myorg.dto.response.dashboard.DashboardOneResponse;
 import com.myorg.dto.response.dashboard.DashboardTwoResponse;
 import com.myorg.dto.response.process.CovidDetailFilterResponse;
 import com.myorg.dto.response.process.CovidHeaderFilterResponse;
 import com.myorg.dto.response.process.CovidLoadResponse;
 import com.myorg.dto.response.security.LoginResponse;
-import com.myorg.dto.response.security.PermitResponse;
+import com.myorg.dto.response.security.PermitFetchResponse;
+import com.myorg.dto.response.security.ProfileFetchResponse;
+import com.myorg.dto.response.security.ProfileFilterResponse;
+import com.myorg.dto.response.security.ProfileResponse;
+import com.myorg.dto.response.security.UserFilterResponse;
 import com.myorg.dto.response.security.UserFindAllResponse;
+import com.myorg.dto.response.security.UserResponse;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
@@ -60,10 +71,18 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
     private final String FIND_ALL_ENDPOINT  = "/findall";
     private final String COUNT_ALL_ENDPOINT = "/countall";
 
-    //data fetch
+    //configurations
+    private final String SETTING_ENDPOINT = "/setting";
+
+    //security
+    private final String PROFILE_ENDPOINT = "/profile";
     private final String USER_ENDPOINT    = "/user";
-    private final String PERMIT_ENDPOINT  = "/permits";
-    private final String COUNTRY_ENDPOINT = "/country";
+
+    //data fetch
+    private final String PERMIT_ENDPOINT                = "/permits";
+    private final String COUNTRY_ENDPOINT               = "/country";
+    private final String FETCH_ENDPOINT                 = "/fetch";
+    private final String USER_USERNAME_OR_MAIL_ENDPOINT = "/usernameormail";
 
     //dashboard
     private final String DASHBOARD_ENDPOINT     = "/dashboard";
@@ -174,9 +193,10 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("userId", String.valueOf(request.getUserId()));
             params.put("description", request.getDescription());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
-            params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(),
+                            getUserSetting()));
+            params.put("dateEnd", DateUtilities.getLocalDateAsString(request.getDateEnd(),
+                    getUserSetting()));
 
             params.put("offset", String.valueOf(request.getOffset()));
             params.put("limit", String.valueOf(request.getLimit()));
@@ -207,9 +227,10 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("userId", String.valueOf(request.getUserId()));
             params.put("description", request.getDescription());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
-            params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(),
+                            getUserSetting()));
+            params.put("dateEnd", DateUtilities.getLocalDateAsString(request.getDateEnd(),
+                    getUserSetting()));
             HttpRequest req =
                     builderGET(LOAD_ENDPOINT + COUNT_ALL_ENDPOINT, params).build();
 
@@ -233,9 +254,10 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("headerId", String.valueOf(request.getHeaderId()));
             params.put("country", request.getCountry());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
-            params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(),
+                            getUserSetting()));
+            params.put("dateEnd", DateUtilities.getLocalDateAsString(request.getDateEnd(),
+                    getUserSetting()));
 
             params.put("offset", String.valueOf(request.getOffset()));
             params.put("limit", String.valueOf(request.getLimit()));
@@ -267,9 +289,10 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             params.put("headerId", String.valueOf(request.getHeaderId()));
             params.put("country", request.getCountry());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.getDateStart(), getUserSetting()));
-            params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.getDateEnd(), getUserSetting()));
+                    DateUtilities.getLocalDateAsString(request.getDateStart(),
+                            getUserSetting()));
+            params.put("dateEnd", DateUtilities.getLocalDateAsString(request.getDateEnd(),
+                    getUserSetting()));
 
             HttpRequest req =
                     builderGET(LOAD_ENDPOINT + DETAIL_ENDPOINT + COUNT_ALL_ENDPOINT,
@@ -278,6 +301,257 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             response = client.send(req, HttpResponse.BodyHandlers.ofString());
 
             return objectMapper.readValue(response.body(), CountResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileResponse postProfile(ProfileRequest request) {
+        HttpResponse<String> response;
+
+        try {
+            HttpRequest req = builderPOST(PROFILE_ENDPOINT,
+                    objectMapper.writeValueAsString(request)).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), ProfileResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileFilterResponse filterProfiles(ProfileFilterRequest request) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("enabled", String.valueOf(request.isEnabled()));
+            params.put("name", String.valueOf(request.getName()));
+            params.put("description", request.getDescription());
+
+            params.put("offset", String.valueOf(request.getOffset()));
+            params.put("limit", String.valueOf(request.getLimit()));
+            params.put("sortOrder", String.valueOf(request.getSortOrder()));
+            params.put("sortProperty", String.valueOf(request.getSortProperty()));
+
+            HttpRequest req =
+                    builderGET(PROFILE_ENDPOINT + FIND_ALL_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            return objectMapper.readValue(response.body(), ProfileFilterResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public CountResponse countProfilesFilter(ProfileFilterRequest request) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("enabled", String.valueOf(request.isEnabled()));
+            params.put("name", String.valueOf(request.getName()));
+            params.put("description", request.getDescription());
+
+            HttpRequest req =
+                    builderGET(PROFILE_ENDPOINT + COUNT_ALL_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            return objectMapper.readValue(response.body(), CountResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileResponse deleteProfile(Long id) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("id", String.valueOf(id));
+
+            HttpRequest req = builderDELETE(PROFILE_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), ProfileResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileResponse getProfile(Long id) {
+        HttpResponse<String> response;
+
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("id", String.valueOf(id));
+
+            HttpRequest req = builderGET(PROFILE_ENDPOINT, params).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), ProfileResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserResponse postUser(UserRequest request) {
+        HttpResponse<String> response;
+
+        try {
+            HttpRequest req = builderPOST(USER_ENDPOINT,
+                    objectMapper.writeValueAsString(request)).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), UserResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserFilterResponse filterUsers(UserFilterRequest request) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("enabled", String.valueOf(request.isEnabled()));
+            params.put("name", String.valueOf(request.getName()));
+            params.put("mail", request.getMail());
+
+            params.put("offset", String.valueOf(request.getOffset()));
+            params.put("limit", String.valueOf(request.getLimit()));
+            params.put("sortOrder", String.valueOf(request.getSortOrder()));
+            params.put("sortProperty", String.valueOf(request.getSortProperty()));
+
+            HttpRequest req =
+                    builderGET(USER_ENDPOINT + FIND_ALL_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            return objectMapper.readValue(response.body(), UserFilterResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public CountResponse countUsersFilter(UserFilterRequest request) {
+        HttpResponse<String> response;
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("enabled", String.valueOf(request.isEnabled()));
+            params.put("name", request.getName());
+            params.put("mail", request.getMail());
+
+            HttpRequest req =
+                    builderGET(USER_ENDPOINT + COUNT_ALL_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            return objectMapper.readValue(response.body(), CountResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserResponse deleteUser(Long id) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("id", String.valueOf(id));
+
+            HttpRequest req = builderDELETE(USER_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), UserResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserResponse getUser(Long id) {
+        HttpResponse<String> response;
+
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("id", String.valueOf(id));
+
+            HttpRequest req = builderGET(USER_ENDPOINT, params).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), UserResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserResponse getUserByUsernameOrMail(String usernameormail) {
+        HttpResponse<String> response;
+
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("usernameormail", usernameormail);
+
+            HttpRequest req = builderGET(USER_ENDPOINT + USER_USERNAME_OR_MAIL_ENDPOINT,
+                    params).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), UserResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserSettingResponse postUserSetting(UserSettingRequest request) {
+        HttpResponse<String> response;
+
+        try {
+            HttpRequest req = builderPOST(SETTING_ENDPOINT,
+                    objectMapper.writeValueAsString(request)).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), UserSettingResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserSettingResponse getRequestUserSetting() {
+        HttpResponse<String> response;
+
+        try {
+
+            HttpRequest req = builderGET(SETTING_ENDPOINT, null).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), UserSettingResponse.class);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -309,9 +583,10 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
             Map<String, String> params = new HashMap<>();
             params.put("country", request.country());
             params.put("dateStart",
-                    DateUtilities.getLocalDateAsString(request.dateStart(), getUserSetting()));
-            params.put("dateEnd",
-                    DateUtilities.getLocalDateAsString(request.dateEnd(), getUserSetting()));
+                    DateUtilities.getLocalDateAsString(request.dateStart(),
+                            getUserSetting()));
+            params.put("dateEnd", DateUtilities.getLocalDateAsString(request.dateEnd(),
+                    getUserSetting()));
 
             HttpRequest req = builderGET(DASHBOARD_ENDPOINT + DASHBOARD_TWO_ENDPOINT,
                     params).build();
@@ -324,7 +599,7 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
     }
 
     @Override
-    public CovidLoadResponse getHeaderData(Long id) {
+    public CovidLoadResponse getCovidLoad(Long id) {
         HttpResponse<String> response;
 
         try {
@@ -341,7 +616,7 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
     }
 
     @Override
-    public CovidLoadResponse deleteHeader(Long id) {
+    public CovidLoadResponse deleteCovidLoad(Long id) {
         HttpResponse<String> response;
 
         try {
@@ -360,7 +635,7 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
     }
 
     @Override
-    public CovidLoadResponse loadData(CovidLoadRequest request, byte[] file) {
+    public CovidLoadResponse postCovidLoad(CovidLoadRequest request, byte[] file) {
         HttpResponse<String> response;
         try {
             String boundary = UUID.randomUUID().toString();
@@ -412,13 +687,13 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
 
     //Data Fetch
     @Override
-    public PermitResponse getPermits() {
+    public PermitFetchResponse getPermits() {
         HttpResponse<String> response;
 
         try {
-            HttpRequest req = builderGET(PERMIT_ENDPOINT, null).build();
+            HttpRequest req = builderGET(PERMIT_ENDPOINT + FETCH_ENDPOINT, null).build();
             response = client.send(req, HttpResponse.BodyHandlers.ofString());
-            return objectMapper.readValue(response.body(), PermitResponse.class);
+            return objectMapper.readValue(response.body(), PermitFetchResponse.class);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -430,7 +705,7 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
         HttpResponse<String> response;
 
         try {
-            HttpRequest req = builderGET(USER_ENDPOINT + FIND_ALL_ENDPOINT, null).build();
+            HttpRequest req = builderGET(USER_ENDPOINT + FETCH_ENDPOINT, null).build();
             response = client.send(req, HttpResponse.BodyHandlers.ofString());
             return objectMapper.readValue(response.body(), UserFindAllResponse.class);
         } catch (Exception e) {
@@ -447,6 +722,19 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
                     builderGET(COUNTRY_ENDPOINT + FIND_ALL_ENDPOINT, null).build();
             response = client.send(req, HttpResponse.BodyHandlers.ofString());
             return objectMapper.readValue(response.body(), CountryFindAllResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public ProfileFetchResponse getProfiles() {
+        HttpResponse<String> response;
+        try {
+            HttpRequest req = builderGET(PROFILE_ENDPOINT + FETCH_ENDPOINT, null).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), ProfileFetchResponse.class);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;

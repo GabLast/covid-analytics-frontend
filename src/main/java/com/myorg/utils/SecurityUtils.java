@@ -22,24 +22,6 @@ public final class SecurityUtils {
         this.service = service;
     }
 
-    public Set<String> getPermits() {
-        try {
-            PermitResponse response = service.getPermits();
-
-            if (response == null) {
-                throw new RuntimeException("No response from server");
-            }
-
-            if (response.data() == null && response.responseInfo() != null) {
-                throw new RuntimeException(response.responseInfo().message());
-            }
-            return response.data().permits();
-        } catch (Exception e) {
-            new ErrorNotification(e.getMessage());
-            return null;
-        }
-    }
-
     public boolean isAccessGranted(String permit) {
         if(authenticatedUser.get().isPresent()) {
             return authenticatedUser.get().get().grantedAuthorities().contains(permit);

@@ -16,7 +16,7 @@ public class WarningNotification extends Notification {
         super();
 
         addThemeVariants(NotificationVariant.LUMO_WARNING);
-        setPosition(Position.MIDDLE);
+        setPosition(Position.BOTTOM_END);
         setDuration(4 * 1000);
 
         Div divText = new Div(new Text(message));
@@ -39,7 +39,7 @@ public class WarningNotification extends Notification {
         super();
 
         addThemeVariants(NotificationVariant.LUMO_WARNING);
-        setPosition(Position.MIDDLE);
+        setPosition(Position.BOTTOM_END);
         setDuration(timeInSeconds * 1000);
 
         Div divText = new Div(new Text(message));

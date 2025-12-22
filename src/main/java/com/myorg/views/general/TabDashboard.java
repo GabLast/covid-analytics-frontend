@@ -108,7 +108,6 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
 
         tabs = new Tabs(tabBoardOne, tabBoardTwo);
         tabs.setWidthFull();
-        tabs.getStyle().set("background-color", "white");
 
         add(tabs);
         add(content);
@@ -212,7 +211,8 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
         DashboardTwoData data = fetchDashboardTwoData();
         String json = new BarChart(new BarData()
                 .addLabels("Infections", "Deaths", "Partial Vaccinations",
-                        "Full Vaccinations", "Vaccine Doses Administrated", "New Tested").addDataset(
+                        "Full Vaccinations", "Vaccine Doses Administrated", "New Tested")
+                .addDataset(
                         new BarDataset().setLabel("Amount of People")
                                 .setBackgroundColor("#ffa64d")
                                 .addData(data.infections())
@@ -258,7 +258,7 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
 
         formFilters = new FormLayout();
         formFilters.setSizeUndefined();
-        formFilters.setResponsiveSteps(new FormLayout.ResponsiveStep("1px", 1),
+        formFilters.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("600px", 2),
                 new FormLayout.ResponsiveStep("900px", 3),
                 new FormLayout.ResponsiveStep("1200px", 4));
