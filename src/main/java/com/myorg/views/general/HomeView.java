@@ -2,9 +2,8 @@ package com.myorg.views.general;
 
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.encapsulations.User;
-import com.myorg.utils.GlobalConstants;
 import com.myorg.views.MainLayout;
-import com.myorg.views.authentication.LoginView;
+import com.myorg.views.authentication.LoginViewVersion2;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -21,9 +20,10 @@ import jakarta.annotation.security.PermitAll;
 public class HomeView extends VerticalLayout implements HasDynamicTitle, BeforeEnterListener{
 
     public HomeView() {
-        Image imgLogo = new Image(GlobalConstants.LOGO, "LOGO");
-        imgLogo.setWidth(50, Unit.PERCENTAGE);
-        imgLogo.setHeight(50, Unit.PERCENTAGE);
+//        Image imgLogo = new Image(GlobalConstants.LOGO, "LOGO");
+        Image imgLogo = new Image("images/acme-logo.jpg", "LOGO");
+        imgLogo.setWidth(25, Unit.PERCENTAGE);
+        imgLogo.setHeight(25, Unit.PERCENTAGE);
 
         setSizeFull();
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -44,7 +44,7 @@ public class HomeView extends VerticalLayout implements HasDynamicTitle, BeforeE
     public void beforeEnter(BeforeEnterEvent event) {
         User user = (User) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USER.toString());
         if(user == null || StringUtils.isBlank(user.token())) {
-            event.rerouteTo(LoginView.class);
+            event.rerouteTo(LoginViewVersion2.class);
         }
     }
 }

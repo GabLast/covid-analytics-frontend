@@ -5,7 +5,7 @@
     <!-- Project from https://start.vaadin.com/e3c81dfe-31c2-4383-8826-dc92455f3c21 -->
     <groupId>com.myorg</groupId>
     <artifactId>covid-analytics-front</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>covid-analytics-frontend</name>

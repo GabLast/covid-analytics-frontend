@@ -8,7 +8,7 @@ import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
 import com.myorg.utils.PermitConstants;
 import com.myorg.utils.SecurityUtils;
-import com.myorg.views.authentication.LoginView;
+import com.myorg.views.authentication.LoginViewVersion2;
 import com.myorg.views.forms.configuration.FormUserSetting;
 import com.myorg.views.general.AboutView;
 import com.myorg.views.general.HomeView;
@@ -233,7 +233,7 @@ public class MainLayout extends AppLayout
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticatedUser.get().isEmpty()) {
-            event.rerouteTo(LoginView.class);
+            event.rerouteTo(LoginViewVersion2.class);
         }
     }
 

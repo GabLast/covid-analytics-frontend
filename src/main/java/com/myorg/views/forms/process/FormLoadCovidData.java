@@ -1,5 +1,7 @@
 package com.myorg.views.forms.process;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
 import com.myorg.dto.request.process.CovidLoadRequest;
 import com.myorg.dto.response.configuration.CountryFindAllDataDetails;
@@ -111,6 +113,19 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
         tfJson.setPlaceholder("Json Object" + "...");
         tfJson.setSizeFull();
         tfJson.setMaxRows(2);
+        tfJson.addValueChangeListener(e -> {
+            if(tfJson.isInvalid() || StringUtils.isBlank(e.getValue())) {
+                return;
+            }
+            try {
+                new ObjectMapper().readTree(e.getValue());
+                tfJson.setInvalid(false);
+                tfJson.setErrorMessage("Complete the required fields");
+            } catch (JacksonException ex) {
+                tfJson.setErrorMessage("Invalid Json");
+                tfJson.setInvalid(true);
+            }
+        });
 
         tfJsonURL = new TextArea("Json URL");
         tfJsonURL.setRequired(true);

@@ -343,6 +343,9 @@ public class TabUser extends Div implements AfterNavigationObserver, HasDynamicT
         miEdit.setEnabled(status);
         miView.setEnabled(status);
         miDelete.setEnabled(status);
+        if(status && object != null && object.admin()) {
+            miDelete.setEnabled(false);
+        }
     }
 
     private void refreshData() {

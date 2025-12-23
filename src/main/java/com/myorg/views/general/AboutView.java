@@ -1,6 +1,5 @@
 package com.myorg.views.general;
 
-import com.myorg.utils.GlobalConstants;
 import com.myorg.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
@@ -18,7 +17,8 @@ public class AboutView extends VerticalLayout implements HasDynamicTitle {
     public AboutView() {
         setSpacing(false);
 
-        Image img = new Image(GlobalConstants.LOGO, "placeholder");
+        Image img = new Image("images/acme-logo.jpg", "placeholder");
+//        Image img = new Image(GlobalConstants.LOGO, "placeholder");
         img.setWidth("200px");
         add(img);
 
