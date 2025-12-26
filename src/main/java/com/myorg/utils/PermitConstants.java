@@ -17,7 +17,6 @@ public class PermitConstants {
     public static final String LOAD_COVID_DATA_DELETE = "LOAD_COVID_DATA_DELETE";
 
     //***********************************************************************************
-
     public static final String SECURITY_MODULE = "SECURITY_MODULE";
 
     public static final String MENU_PROFILE   = "MENU_PROFILE";
@@ -32,6 +31,16 @@ public class PermitConstants {
     public static final String USER_VIEW   = "USER_VIEW";
     public static final String USER_DELETE = "USER_DELETE";
     public static final String USER_TOKEN  = "USER_TOKEN";
+
+    //***********************************************************************************
+
+    public static final String CONFIGURATION_MODULE = "CONFIGURATION_MODULE";
+
+    public static final String MENU_COUNTRY = "MENU_COUNTRY";
+    public static final String COUNTRY_CREATE = "COUNTRY_CREATE";
+    public static final String COUNTRY_EDIT = "COUNTRY_EDIT";
+    public static final String COUNTRY_VIEW = "COUNTRY_VIEW";
+    public static final String COUNTRY_DELETE = "COUNTRY_DELETE";
 
     //***********************************************************************************
 }

@@ -30,6 +30,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 import software.xdev.chartjs.model.charts.BarChart;
 import software.xdev.chartjs.model.data.BarData;
 import software.xdev.chartjs.model.dataset.BarDataset;
@@ -169,6 +170,15 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
                                                                   : availableColors.removeFirst())
                     .addData(detail.population()).addData(detail.populationMale())
                     .addData(detail.populationFemale());
+            datasets.add(dataset);
+        }
+
+        if(CollectionUtils.isEmpty(datasets)) {
+            BarDataset dataset = new BarDataset().setLabel("No Data")
+                    .setBackgroundColor(availableColors.isEmpty() ? "#ffffff"
+                                                                  : availableColors.removeFirst())
+                    .addData(0).addData(0)
+                    .addData(0);
             datasets.add(dataset);
         }
 

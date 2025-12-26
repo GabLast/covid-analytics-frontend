@@ -1,9 +1,7 @@
 package com.myorg.utils;
 
 import com.myorg.config.security.AuthenticatedUser;
-import com.myorg.dto.response.security.PermitResponse;
 import com.myorg.service.CovidAnalyticsService;
-import com.myorg.views.generics.notifications.ErrorNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package com.myorg.config.security;
 
 import com.myorg.encapsulations.User;
-import com.myorg.views.authentication.LoginViewVersion2;
+import com.myorg.views.authentication.LoginView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
@@ -31,7 +31,7 @@ public class AuthenticatedUser {
             UI.getCurrent().getSession().setAttribute(MyVaadinSession.SessionVariables.USER.toString(), null);
             UI.getCurrent().getSession().setAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString(), null);
 
-            UI.getCurrent().navigate(LoginViewVersion2.class);
+            UI.getCurrent().navigate(LoginView.class);
         } catch (ServletException e) {
             throw new RuntimeException(e);
         }

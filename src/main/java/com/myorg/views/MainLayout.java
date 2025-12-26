@@ -6,9 +6,10 @@ import com.myorg.config.security.MyVaadinSession;
 import com.myorg.encapsulations.User;
 import com.myorg.encapsulations.UserSetting;
 import com.myorg.service.CovidAnalyticsService;
+import com.myorg.utils.GlobalConstants;
 import com.myorg.utils.PermitConstants;
 import com.myorg.utils.SecurityUtils;
-import com.myorg.views.authentication.LoginViewVersion2;
+import com.myorg.views.authentication.LoginView;
 import com.myorg.views.forms.configuration.FormUserSetting;
 import com.myorg.views.general.AboutView;
 import com.myorg.views.general.HomeView;
@@ -16,6 +17,7 @@ import com.myorg.views.general.TabDashboard;
 import com.myorg.views.generics.navigation.MySideNavItem;
 import com.myorg.views.generics.notifications.ErrorNotification;
 import com.myorg.views.generics.notifications.WarningNotification;
+import com.myorg.views.tabs.configuration.TabCountry;
 import com.myorg.views.tabs.process.TabCovidHeader;
 import com.myorg.views.tabs.security.TabProfile;
 import com.myorg.views.tabs.security.TabUser;
@@ -61,6 +63,7 @@ public class MainLayout extends AppLayout
     private UserSetting settings;
 
     private H2 viewTitle;
+    private Div divDrop, divRight;
 
     public MainLayout(AppInfo appInfo, AuthenticatedUser authenticatedUser,
             CovidAnalyticsService service, SecurityUtils securityUtils) {
@@ -70,6 +73,16 @@ public class MainLayout extends AppLayout
         this.securityUtils = securityUtils;
         this.settings = (UserSetting) VaadinSession.getCurrent()
                 .getAttribute(MyVaadinSession.SessionVariables.USERSETTINGS.toString());
+        if(this.settings == null) {
+            this.settings = UserSetting.builder()
+                    .id(0L)
+                    .darkMode(false)
+                    .language("en")
+                    .dateFormat("dd/MM/yyyy")
+                    .dateTimeFormat("dd/MM/yyyy hh:mm a")
+                    .timeZoneString(GlobalConstants.DEFAULT_TIMEZONE)
+                    .build();
+        }
 
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
@@ -139,6 +152,18 @@ public class MainLayout extends AppLayout
                 VaadinIcon.USERS.create(),
                 securityUtils.isAccessGranted(PermitConstants.MENU_USER)));
         div.add(securityModule);
+
+        //***************************************************************
+
+        SideNav configurationModule = new SideNav("Configurations");
+        configurationModule.setCollapsible(true);
+        configurationModule.setExpanded(false);
+        configurationModule.setVisible(
+                securityUtils.isAccessGranted(PermitConstants.SECURITY_MODULE));
+        configurationModule.addItem(new MySideNavItem("Countries", TabCountry.class,
+                VaadinIcon.MAP_MARKER.create(),
+                securityUtils.isAccessGranted(PermitConstants.MENU_COUNTRY)));
+        div.add(configurationModule);
 
         //***************************************************************
 
@@ -233,7 +258,7 @@ public class MainLayout extends AppLayout
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticatedUser.get().isEmpty()) {
-            event.rerouteTo(LoginViewVersion2.class);
+            event.rerouteTo(LoginView.class);
         }
     }
 

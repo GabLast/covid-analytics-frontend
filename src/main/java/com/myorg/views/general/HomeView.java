@@ -3,7 +3,7 @@ package com.myorg.views.general;
 import com.myorg.config.security.MyVaadinSession;
 import com.myorg.encapsulations.User;
 import com.myorg.views.MainLayout;
-import com.myorg.views.authentication.LoginViewVersion2;
+import com.myorg.views.authentication.LoginView;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -44,7 +44,7 @@ public class HomeView extends VerticalLayout implements HasDynamicTitle, BeforeE
     public void beforeEnter(BeforeEnterEvent event) {
         User user = (User) VaadinSession.getCurrent().getAttribute(MyVaadinSession.SessionVariables.USER.toString());
         if(user == null || StringUtils.isBlank(user.token())) {
-            event.rerouteTo(LoginViewVersion2.class);
+            event.rerouteTo(LoginView.class);
         }
     }
 }

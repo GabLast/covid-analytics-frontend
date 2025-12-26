@@ -1,5 +1,7 @@
 package com.myorg.service;
 
+import com.myorg.dto.request.configurations.CountryFilterRequest;
+import com.myorg.dto.request.configurations.CountryRequest;
 import com.myorg.dto.request.configurations.UserSettingRequest;
 import com.myorg.dto.request.dashboard.DashboardTwoFilterRequest;
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
@@ -11,7 +13,9 @@ import com.myorg.dto.request.security.ProfileRequest;
 import com.myorg.dto.request.security.UserFilterRequest;
 import com.myorg.dto.request.security.UserRequest;
 import com.myorg.dto.response.CountResponse;
+import com.myorg.dto.response.configuration.CountryFilterResponse;
 import com.myorg.dto.response.configuration.CountryFindAllResponse;
+import com.myorg.dto.response.configuration.CountryResponse;
 import com.myorg.dto.response.configuration.UserSettingResponse;
 import com.myorg.dto.response.dashboard.DashboardOneResponse;
 import com.myorg.dto.response.dashboard.DashboardTwoResponse;
@@ -64,6 +68,13 @@ public interface CovidAnalyticsService {
     //Settings
     UserSettingResponse postUserSetting(UserSettingRequest request);
     UserSettingResponse getRequestUserSetting();
+
+    //Configurations
+    CountryFilterResponse filterCountries(CountryFilterRequest request);
+    CountResponse countCountriesFilter(CountryFilterRequest request);
+    CountryResponse deleteCountry(Long id);
+    CountryResponse getCountry(Long id);
+    CountryResponse postCountry(CountryRequest request);
 
     //Dashboard
     DashboardOneResponse getBoardOneData();

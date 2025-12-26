@@ -2,6 +2,8 @@ package com.myorg.service.impl;
 
 import com.myorg.config.AppInfo;
 import com.myorg.config.security.MyVaadinSession;
+import com.myorg.dto.request.configurations.CountryFilterRequest;
+import com.myorg.dto.request.configurations.CountryRequest;
 import com.myorg.dto.request.configurations.UserSettingRequest;
 import com.myorg.dto.request.dashboard.DashboardTwoFilterRequest;
 import com.myorg.dto.request.process.CovidDetailFilterRequest;
@@ -13,7 +15,9 @@ import com.myorg.dto.request.security.ProfileRequest;
 import com.myorg.dto.request.security.UserFilterRequest;
 import com.myorg.dto.request.security.UserRequest;
 import com.myorg.dto.response.CountResponse;
+import com.myorg.dto.response.configuration.CountryFilterResponse;
 import com.myorg.dto.response.configuration.CountryFindAllResponse;
+import com.myorg.dto.response.configuration.CountryResponse;
 import com.myorg.dto.response.configuration.UserSettingResponse;
 import com.myorg.dto.response.dashboard.DashboardOneResponse;
 import com.myorg.dto.response.dashboard.DashboardTwoResponse;
@@ -558,6 +562,104 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
         }
     }
 
+    @Override
+    public CountryFilterResponse filterCountries(CountryFilterRequest request) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("enabled", String.valueOf(request.isEnabled()));
+            params.put("name", String.valueOf(request.getName()));
+            params.put("countryCode", request.getCountryCode());
+
+            params.put("offset", String.valueOf(request.getOffset()));
+            params.put("limit", String.valueOf(request.getLimit()));
+            params.put("sortOrder", String.valueOf(request.getSortOrder()));
+            params.put("sortProperty", String.valueOf(request.getSortProperty()));
+
+            HttpRequest req =
+                    builderGET(COUNTRY_ENDPOINT + FIND_ALL_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            return objectMapper.readValue(response.body(), CountryFilterResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public CountResponse countCountriesFilter(CountryFilterRequest request) {
+        HttpResponse<String> response;
+
+        try {
+
+            Map<String, String> params = new HashMap<>();
+            params.put("enabled", String.valueOf(request.isEnabled()));
+            params.put("name", String.valueOf(request.getName()));
+            params.put("countryCode", request.getCountryCode());
+
+            HttpRequest req =
+                    builderGET(COUNTRY_ENDPOINT + COUNT_ALL_ENDPOINT, params).build();
+
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+            return objectMapper.readValue(response.body(), CountResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public CountryResponse deleteCountry(Long id) {
+        HttpResponse<String> response;
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("id", String.valueOf(id));
+
+            HttpRequest req = builderDELETE(COUNTRY_ENDPOINT, params).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), CountryResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public CountryResponse getCountry(Long id) {
+        HttpResponse<String> response;
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("id", String.valueOf(id));
+
+            HttpRequest req = builderGET(COUNTRY_ENDPOINT, params).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), CountryResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public CountryResponse postCountry(CountryRequest request) {
+        HttpResponse<String> response;
+
+        try {
+            HttpRequest req = builderPOST(COUNTRY_ENDPOINT,
+                    objectMapper.writeValueAsString(request)).build();
+            response = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), CountryResponse.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
     //Dashboard
     @Override
     public DashboardOneResponse getBoardOneData() {
@@ -719,7 +821,7 @@ public class CovidAnalyticsServiceImpl implements CovidAnalyticsService {
         HttpResponse<String> response;
         try {
             HttpRequest req =
-                    builderGET(COUNTRY_ENDPOINT + FIND_ALL_ENDPOINT, null).build();
+                    builderGET(COUNTRY_ENDPOINT + FETCH_ENDPOINT, null).build();
             response = client.send(req, HttpResponse.BodyHandlers.ofString());
             return objectMapper.readValue(response.body(), CountryFindAllResponse.class);
         } catch (Exception e) {
