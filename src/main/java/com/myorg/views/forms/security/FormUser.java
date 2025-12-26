@@ -188,7 +188,7 @@ public class FormUser extends BaseForm<UserRequest> {
 
         Component details = buildDetails();
 
-        Tab tabDetails = new Tab("Permits");
+        Tab tabDetails = new Tab("Profiles");
         tabs.addTabAsFirst(tabDetails);
         tabs.addSelectedChangeListener(event -> {
 

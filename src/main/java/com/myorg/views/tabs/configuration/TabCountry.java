@@ -240,19 +240,19 @@ public class TabCountry extends Div
         grid.addColumn(CountryFilterDataDetails::code).setKey("countryCode")
                 .setHeader("Country Code").setSortable(true).setResizable(true)
                 .setFlexGrow(1);
-        grid.addColumn(CountryFilterDataDetails::dataCommonsId).setKey("placeId")
+        grid.addColumn(CountryFilterDataDetails::placeId).setKey("placeId")
                 .setHeader("Place ID").setSortable(false).setResizable(true)
                 .setFlexGrow(1);
-        grid.addColumn(CountryFilterDataDetails::dataCommonsId).setKey("wikiDataId")
+        grid.addColumn(CountryFilterDataDetails::wikiDataId).setKey("wikiDataId")
                 .setHeader("Wiki Data ID").setSortable(false).setResizable(true)
                 .setFlexGrow(1);
         grid.addColumn(CountryFilterDataDetails::dataCommonsId).setKey("dataCommonsId")
                 .setHeader("Data Commons ID").setSortable(false).setResizable(true)
                 .setFlexGrow(1);
-        grid.addColumn(CountryFilterDataDetails::dataCommonsId).setKey("iso_3166_1_alpha_2")
+        grid.addColumn(CountryFilterDataDetails::iso_3166_1_alpha_2).setKey("iso_3166_1_alpha_2")
                 .setHeader("ISO-3166 Alpha 2").setSortable(false).setResizable(true)
                 .setFlexGrow(1);
-        grid.addColumn(CountryFilterDataDetails::dataCommonsId).setKey("iso_3166_1_alpha_3")
+        grid.addColumn(CountryFilterDataDetails::iso_3166_1_alpha_3).setKey("iso_3166_1_alpha_3")
                 .setHeader("ISO-3166 Alpha 3").setSortable(false).setResizable(true)
                 .setFlexGrow(1);
 
