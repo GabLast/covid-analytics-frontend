@@ -112,11 +112,14 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
         tfJson.setErrorMessage("Complete the required fields");
         tfJson.setPlaceholder("Json Object" + "...");
         tfJson.setSizeFull();
-        tfJson.setMaxRows(2);
+        tfJson.setMaxRows(3);
         tfJson.addValueChangeListener(e -> {
+            tfJson.scrollToStart();
+
             if(tfJson.isInvalid() || StringUtils.isBlank(e.getValue())) {
                 return;
             }
+
             try {
                 new ObjectMapper().readTree(e.getValue());
                 tfJson.setInvalid(false);
@@ -446,7 +449,7 @@ public class FormLoadCovidData extends BaseForm<CovidLoadRequest> {
             CovidLoadResponse response = service.postCovidLoad(CovidLoadRequest.builder()
                             .id(responseGet != null ? responseGet.data().headerId() : null)
                             .date(dpDate.getValue()).description(tfDescription.getValue().trim())
-                            .jsonString(tfJson.getValue()).jsonURL(tfJsonURL.getValue()).build(),
+                            .jsonString(tfJson.getValue().trim()).jsonURL(tfJsonURL.getValue().trim()).build(),
                     file);
 
             if (response == null) {

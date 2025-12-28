@@ -208,13 +208,11 @@ public class MainLayout extends AppLayout
 
             menu.getSubMenu().addItem("Settings", event -> {
                 new FormUserSetting(service, userSetting -> {
-                    UI.getCurrent().getPage().reload();
                     try {
                         if (userSetting != null) {
                             UI.getCurrent().getSession().setAttribute(
                                     MyVaadinSession.SessionVariables.USERSETTINGS.toString(),
                                     userSetting);
-                            UI.getCurrent().getPage().reload();
                             this.settings = (UserSetting) VaadinSession.getCurrent()
                                     .getAttribute(
                                             MyVaadinSession.SessionVariables.USERSETTINGS.toString());
@@ -222,7 +220,7 @@ public class MainLayout extends AppLayout
                     } catch (Exception e) {
                         new ErrorNotification(e.getMessage());
                     }
-
+                    UI.getCurrent().getPage().reload();
                 });
             });
 
