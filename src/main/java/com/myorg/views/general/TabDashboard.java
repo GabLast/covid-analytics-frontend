@@ -221,7 +221,7 @@ public class TabDashboard extends VerticalLayout implements HasDynamicTitle {
         DashboardTwoData data = fetchDashboardTwoData();
         String json = new BarChart(new BarData()
                 .addLabels("Infections", "Deaths", "Partial Vaccinations",
-                        "Full Vaccinations", "Vaccine Doses Administrated", "New Tested")
+                        "Full Vaccinations", "Vaccine Doses Administrated", "New Tested Patients")
                 .addDataset(
                         new BarDataset().setLabel("Amount of People")
                                 .setBackgroundColor("#ffa64d")
